@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — Café am Lindenplatz
 
 Implementation record, maintained by Claude Code. Requirements live in `PROJECT_BRIEF.md`, design direction in `DESIGN.md`.
-Last updated: 2026-11-04 (Milestone 2, public pages).
+Last updated: 2026-11-04 (Milestone 2.1, Kontakt and Über uns refinement).
 
 ## Stack
 - **Next.js 16.4.5** (App Router, Turbopack), **React 19.3**, **TypeScript 5**, npm. Scaffolded with `create-next-app@16.4.5`
@@ -38,8 +38,8 @@ assets/originals/       unmodified source files that are not served directly
 |---|---|---|
 | `/` | Complete (M1.5) | Cover hero + Heute panel, menu card, offer board, photo collage, dark visit band |
 | `/speisekarte` | Complete | Typographic masthead with serving times, menu card, standing offers grouped under one wide counter photo, pre-order band |
-| `/ueber-uns` | Complete (short by design) | Factual intro, photo "Rundgang", filmstrip of laid tables, sign-off with the café's own tagline |
-| `/kontakt` | Complete (form not sending) | Phone number as typographic lead, address/hours/route column, contact form |
+| `/ueber-uns` | Complete (short by design) | Opening: text beside one complete photo (native 16:9, no crop); separate "Rundgang" section; filmstrip of laid tables; sign-off with the café's own tagline |
+| `/kontakt` | Complete (form not sending) | Split page: ways to reach the café on the ivory page (left), form on a warm-white sheet running to the viewport edge (right); first field in the first desktop viewport |
 | `/impressum` | Stub | Marked as unapproved draft, provider facts only |
 | `/datenschutz` | Stub | "In Vorbereitung" |
 

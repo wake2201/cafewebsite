@@ -4,6 +4,7 @@ import Link from "next/link";
 import { cafe } from "@/lib/cafe";
 import gastraum from "@/public/images/cafe/gastraum-und-tresen.jpg";
 import kaffeestation from "@/public/images/cafe/theke-kaffeestation.jpg";
+import tresen from "@/public/images/cafe/tresen-selbstbedienung.jpg";
 import kaffeetafel from "@/public/images/feiern/kaffeetafel-vor-wandlogo.jpg";
 import festtafel from "@/public/images/feiern/festtafel-laengs.jpg";
 import styles from "./page.module.css";
@@ -23,8 +24,8 @@ export default function UeberUnsPage() {
   return (
     <>
       <header className={`container ${styles.intro}`}>
-        <h1 className={styles.title}>Über uns</h1>
         <div className={styles.introText}>
+          <h1 className={styles.title}>Über uns</h1>
           <p className={styles.lede}>
             Das {cafe.name} liegt in der {cafe.address.street} in {cafe.address.city} und wird von Inhaberin{" "}
             {cafe.owner} geführt.
@@ -34,6 +35,17 @@ export default function UeberUnsPage() {
             hausgebackenen Kuchen. Vieles davon auch zum Mitnehmen.
           </p>
         </div>
+        {/* Shown whole at its native 16:9: no object-fit crop in the opening composition. */}
+        <figure className={styles.introFigure}>
+          <Image
+            src={gastraum}
+            alt="Heller Gastraum mit Holzboden, Tischen mit Blumen, dem Tresen und der Eingangstür im Hintergrund"
+            sizes="(min-width: 80rem) 790px, (min-width: 64rem) 62vw, 100vw"
+            preload
+            placeholder="blur"
+          />
+          <figcaption>Der Gastraum mit Tresen</figcaption>
+        </figure>
       </header>
 
       <section className={styles.tour} aria-labelledby="rundgang">
@@ -44,12 +56,12 @@ export default function UeberUnsPage() {
           <div className={styles.tourGrid}>
             <figure className={styles.tourMain}>
               <Image
-                src={gastraum}
-                alt="Heller Gastraum mit Holzboden, Tischen mit Blumen, dem Tresen und der Eingangstür im Hintergrund"
+                src={tresen}
+                alt="Tresen mit Blumen, Obstkorb und Regalen voller Gläser, davor ein Tisch mit einer Rose"
                 sizes="(min-width: 56rem) 62vw, 100vw"
                 placeholder="blur"
               />
-              <figcaption>Der Gastraum mit Tresen</figcaption>
+              <figcaption>Am Tresen</figcaption>
             </figure>
             <figure className={styles.tourSide}>
               <div className={styles.squareFrame}>
