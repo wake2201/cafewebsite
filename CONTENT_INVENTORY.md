@@ -70,7 +70,7 @@ All files downloaded unmodified unless stated. Local copies live in `public/imag
 ### Photos — interior ("Rundgang" slideshow, all 1200×675 JPEG)
 | Source URL (`/images/cafe_am_lindenplatz/slidershow-cafe/…`) | Legacy alt | Content | Local file | Used |
 |---|---|---|---|---|
-| `cafe_05.jpg` | Rundgang – hinterer Bereich | Gastraum, wall with large café logo, tables | `cafe/gastraum-mit-wandlogo.jpg` | **Homepage hero** |
+| `cafe_05.jpg` | Rundgang – hinterer Bereich | Gastraum, wall with large café logo, tables | `cafe/gastraum-mit-wandlogo.jpg` | **Homepage hero**; Über uns Rundgang (4:5 detail crop, M4.3) |
 | `cafe_01.jpg` | Rundgang – Eingang | View along counter with cakes, display case, room | `cafe/theke-mit-kuchen.jpg` | **Homepage "Besuchen Sie uns"** |
 | `cafe_02.jpg` | Rundgang – Thresen | Coffee station, chalkboard, cakes under glass | `cafe/theke-kaffeestation.jpg` | reserve |
 | `cafe_03.jpg` | Rundgang – mittlerer Bereich | Bar counter "Selbstbedienung", flowers | `cafe/tresen-selbstbedienung.jpg` | reserve |
@@ -126,9 +126,12 @@ Note: `cafe_02.jpg` shows a chalkboard "Hausgemachter Kartoffelsalat mit Bockwur
   Deliberately not repeated on Über uns or Kontakt.
 - **Photos:** homepage (gastraum-mit-wandlogo, festtafel-an-der-fensterfront, kaffeetafel-am-fenster); Speisekarte
   (theke-mit-kuchen, bottom-anchored crop so the historical chalkboard price is out of frame); Über uns (gastraum-und-tresen,
-  theke-mit-kuchen as a left-anchored 3:2 crop that excludes the chalkboard, theke-kaffeestation as a left-anchored square
-  crop that excludes the chalkboard, kuchen-und-canape-platten, festtafel-laengs). Milestone 4.
-  Not used: the three dish photos (historical dishes), kaffeetafel-gedeckt (near-duplicate), tresen-selbstbedienung
+  theke-mit-kuchen as a left-anchored 3:2 crop that excludes the chalkboard, gastraum-mit-wandlogo as a 4:5 detail crop
+  of the back room and wall logo, kuchen-und-canape-platten, festtafel-laengs). Milestone 4; the Rundgang detail
+  replaced theke-kaffeestation in Milestone 4.3 (a second, near-identical counter view whose crop had to avoid the
+  historical chalkboard price).
+  Not used: the three dish photos (historical dishes), theke-kaffeestation (near-duplicate counter view, chalkboard),
+  kaffeetafel-gedeckt (near-duplicate), tresen-selbstbedienung
   (near-duplicate of gastraum-und-tresen), kaffeetafel-vor-wandlogo (replaced by the canapé close-up).
 
 ## 8. CMS migration (Milestone 3)

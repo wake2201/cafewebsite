@@ -45,7 +45,7 @@ export default async function SpeisekartePage() {
         ) : null}
       </header>
 
-      <WeeklyMenu />
+      <WeeklyMenu motion="intro" />
 
       <section className={styles.standing} aria-labelledby="angebot">
         <div className="container">

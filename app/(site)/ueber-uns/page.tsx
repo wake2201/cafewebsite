@@ -4,7 +4,7 @@ import Link from "next/link";
 import { cafe } from "@/lib/cafe";
 import { getContactInfo } from "@/lib/content";
 import gastraum from "@/public/images/cafe/gastraum-und-tresen.jpg";
-import kaffeestation from "@/public/images/cafe/theke-kaffeestation.jpg";
+import wandlogo from "@/public/images/cafe/gastraum-mit-wandlogo.jpg";
 import theke from "@/public/images/cafe/theke-mit-kuchen.jpg";
 import platten from "@/public/images/feiern/kuchen-und-canape-platten.jpg";
 import festtafel from "@/public/images/feiern/festtafel-laengs.jpg";
@@ -55,11 +55,13 @@ export default async function UeberUnsPage() {
           <h2 id="rundgang" className={styles.sectionTitle}>
             Ein Rundgang
           </h2>
-          {/* Milestone 4: the long view down the counter replaces a near-duplicate of the opening photo.
-              Left-anchored 3:2 crop: the chalkboard with a historical price (right edge) stays out of frame. */}
+          {/* Two directions through the room: the long view down the counter (left-anchored 3:2 crop keeps the
+              chalkboard with a historical price out of frame), then the back room under the painted wall logo
+              as a 4:5 detail (Milestone 4.3; replaces a second, near-identical counter view). Both open as
+              photo windows on first encounter, the detail slightly after the main photo. */}
           <div className={styles.tourGrid}>
             <figure className={styles.tourMain}>
-              <div className={styles.tourFrame}>
+              <div className={styles.tourFrame} data-reveal="photo">
                 <Image
                   src={theke}
                   alt="Lange Theke mit Kuchen, Kaffeemaschine und Kuchenvitrine, dahinter Tische an der Fensterfront"
@@ -71,16 +73,16 @@ export default async function UeberUnsPage() {
               <figcaption>Entlang der Theke bis zur Fensterfront</figcaption>
             </figure>
             <figure className={styles.tourSide}>
-              <div className={styles.squareFrame}>
+              <div className={styles.detailFrame} data-reveal="photo">
                 <Image
-                  src={kaffeestation}
-                  alt="Kuchenvitrine, Regale mit Gläsern und Tassen und die Kaffeemaschine an der Theke"
-                  sizes="(min-width: 56rem) 30vw, 100vw"
+                  src={wandlogo}
+                  alt="Hinterer Gastraum mit gedeckten Tischen, Wandlampen und dem gemalten Café-Logo an der Wand"
+                  sizes="(min-width: 56rem) 30vw, 72vw"
                   placeholder="blur"
-                  className={styles.squareImage}
+                  className={styles.detailImage}
                 />
               </div>
-              <figcaption>Kuchenvitrine und Kaffeestation an der Theke</figcaption>
+              <figcaption>Der hintere Gastraum mit dem Café-Logo an der Wand</figcaption>
             </figure>
           </div>
         </div>

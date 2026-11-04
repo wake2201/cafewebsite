@@ -311,6 +311,12 @@ a:hover {
     --reveal-duration: 620ms;
   }
 
+  /* Headings that should arrive, not travel (Wochenkarte on the homepage): 10px in 420ms. */
+  [data-reveal="soft"] {
+    --reveal-offset: 10px;
+    --reveal-duration: 420ms;
+  }
+
   [data-reveal][data-revealed="wait"] {
     opacity: 0;
     transform: translateY(var(--reveal-offset));
@@ -318,7 +324,7 @@ a:hover {
 
   [data-reveal="photo"][data-revealed="wait"] {
     transform: none;
-    clip-path: inset(7% 5% round var(--radius));
+    clip-path: inset(var(--window-inset, 7% 5%) round var(--radius));
   }
 
   [data-reveal][data-revealed="animate"] {
@@ -326,7 +332,7 @@ a:hover {
   }
 
   [data-reveal="photo"][data-revealed="animate"] {
-    animation: reveal-window 900ms var(--reveal-delay, 0ms) var(--ease-out) both;
+    animation: reveal-window var(--window-duration, 900ms) var(--reveal-delay, 0ms) var(--ease-out) both;
   }
 
   /* Small, capped stagger: at most three steps of 90 ms. */
@@ -362,10 +368,11 @@ a:hover {
   }
 }
 
+/* The photo opens like a window; --window-inset / --window-duration let a secondary photo open quieter. */
 @keyframes reveal-window {
   from {
     opacity: 0.4;
-    clip-path: inset(7% 5% round var(--radius));
+    clip-path: inset(var(--window-inset, 7% 5%) round var(--radius));
   }
   to {
     opacity: 1;
@@ -391,6 +398,10 @@ a:hover {
 
   .intro-rise[data-intro-step="2"] {
     --intro-delay: 140ms;
+  }
+
+  .intro-rise[data-intro-step="3"] {
+    --intro-delay: 210ms;
   }
 
   .intro-window {

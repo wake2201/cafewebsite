@@ -112,7 +112,7 @@
 }
 
 /* The 3:2 left-anchored crop (1012 of 1200 px) keeps the chalkboard with a historical price at the
-   right edge out of frame. overflow: hidden also contains the entrance scale below. */
+   right edge out of frame. */
 .tourFrame {
   aspect-ratio: 3 / 2;
   overflow: hidden;
@@ -131,19 +131,27 @@
   padding-inline: var(--gutter);
 }
 
-.squareFrame {
-  aspect-ratio: 1 / 1;
+/*
+ * Back-room detail, 4:5 portrait from the 16:9 photo: the crop (x ≈ 165 to 705 of 1200 px) holds the
+ * painted wall logo with both wall lamps in the upper third and the laid tables below. The portrait
+ * answers the landscape main photo instead of repeating it.
+ */
+.detailFrame {
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: var(--radius);
   background: var(--color-border);
+  /* Photo-window reveal (globals.css), quieter and a beat after the main photo. */
+  --window-inset: 4% 3%;
+  --window-duration: 760ms;
+  --reveal-delay: 130ms;
 }
 
-/* Left-anchored square crop keeps the old chalkboard price on the right edge out of frame. */
-.squareImage {
+.detailImage {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 0% 50%;
+  object-position: 25% 50%;
 }
 
 .tourSide {
@@ -175,40 +183,6 @@
     grid-column: 9 / span 4;
     width: auto;
     margin-top: var(--space-8);
-  }
-}
-
-/*
- * Rundgang entrance, progressive enhancement (CSS scroll-driven animations, motion allowed only):
- * the main photo settles from a slight scale inside its frame as it enters the viewport, and the
- * side photo eases into its lower offset. No opacity or clipping, so nothing is hidden at any
- * scroll position; browsers without support show the static layout.
- */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .tourImage {
-      animation: tour-settle linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 45%;
-    }
-
-    .tourSide {
-      animation: tour-follow linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 40%;
-    }
-  }
-}
-
-@keyframes tour-settle {
-  from {
-    transform: scale(1.06);
-  }
-}
-
-@keyframes tour-follow {
-  from {
-    transform: translateY(2.5rem);
   }
 }
 

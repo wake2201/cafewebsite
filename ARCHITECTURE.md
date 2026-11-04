@@ -223,9 +223,10 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
 - **Motion (Milestone 4, CSS-first, no JS):** homepage hero entrance as CSS keyframes in `app/(site)/page.module.css`
   (`hero-rise`, `hero-open`, `hero-settle`; fill `both`, total ≤ 1.6 s). Scroll-linked effects use CSS scroll-driven
   animations (`animation-timeline: view()`) inside `@supports` + `prefers-reduced-motion: no-preference`:
-  `party-depth` (homepage Festtafel, `.partyMain` is `align-self: start` so the frame equals the photo) and
-  `tour-settle` / `tour-follow` (Über uns Rundgang). Only transforms; overflow-hidden frames; verified cover ≥ 4.6 px at
-  both drift extremes. The global reduced-motion rule in `globals.css` collapses any remaining durations.
+  `party-depth` (homepage Festtafel, `.partyMain` is `align-self: start` so the frame equals the photo). Only
+  transforms; overflow-hidden frame; verified cover ≥ 4.6 px at both drift extremes. (`tour-settle` / `tour-follow`
+  on the Über uns Rundgang were removed in Milestone 4.3 in favour of `data-reveal="photo"` on both frames; the
+  secondary photo tunes the shared window via `--window-inset`, `--window-duration` and `--reveal-delay`.) The global reduced-motion rule in `globals.css` collapses any remaining durations.
 - **Interactions and reveals (Milestone 4.1):** shared vocabulary in `app/globals.css` (`.button`, `.text-link`,
   `.text-link-quiet`, `[data-reveal]`, `[data-reveal="photo"]`, `data-reveal-step`); nav underline in
   `SiteHeader.module.css`. Route motion uses one client component, `components/RevealObserver.tsx` (mounted in

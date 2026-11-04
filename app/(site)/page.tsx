@@ -54,7 +54,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <WeeklyMenu reveal />
+      <WeeklyMenu motion="reveal" />
 
       <section className={styles.board} aria-labelledby="angebot">
         <div className="container">

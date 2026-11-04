@@ -45,9 +45,9 @@ Typography strategy: one characterful editorial serif for expressive headlines (
   0.75 rem with a short stagger (0, 120, 200, 280 ms); the café photo opens from a slight inset like a window onto the
   room while the image settles from 104 % scale. Visually at rest after about 0.6 to 0.8 s, exact by 1.6 s.
 - **Scroll-linked photography, progressive enhancement only** (`@supports (animation-timeline: view())`): gentle depth on
-  the homepage Festtafel (the image drifts ±2 % inside its frame at 106 % scale) and an entrance settle on the Über uns
-  Rundgang (main photo from 106 % scale, side photo eases into its offset). Different effect per section; never on
-  menus, prices, opening hours or forms.
+  the homepage Festtafel (the image drifts ±2 % inside its frame at 106 % scale). The Über uns Rundgang settle from
+  Milestone 4 was replaced in Milestone 4.3 by photo-window reveals (it scrubbed too subtly to read as motion and was
+  absent where scroll timelines are unsupported). Never on menus, prices, opening hours or forms.
 - **Never hides content:** no opacity or clip changes are tied to scroll; the entrance always runs to its end without
   JavaScript. `prefers-reduced-motion: reduce` disables every animation; unsupported browsers show the static layout.
 
@@ -79,8 +79,13 @@ hidden state.
 - **Speisekarte:** title and introduction rise on first paint (340 ms). Meal times, Wochenkarte, prices, weekdays and
   the standing offers are static; the theke photo opens as a window, plus the "Immer bei uns" heading and pre-order band.
 - **Über uns:** title and introduction rise; the opening photograph opens from a slight inset (the page's one intro
-  photo moment). Rundgang keeps its scroll-linked settle; the Tafeln photos open in turn; the sign-off rises as one.
-  The Rundgang heading and Tafeln text no longer fade (generic, repeated).
+  photo moment). Rundgang (Milestone 4.3): the counter view opens as a photo window on first encounter, the back-room
+  detail follows 130 ms later with a quieter window (4 % / 3 % inset, 760 ms); both end fully static. The Tafeln photos
+  open in turn; the sign-off rises as one. The Rundgang heading and Tafeln text do not fade (generic, repeated).
+- **Wochenkarte (Milestone 4.3):** only the heading and the date range move. Homepage: scroll reveal ("soft", 10 px in
+  420 ms, range 90 ms later). Speisekarte: part of the first-paint intro (steps 2 and 3, after title and lede), since
+  the section is in the first screen there. Days, dishes, prices, dates, "heute", Mittagstisch time and notes are
+  always static.
 - **Kontakt:** only the title and introduction rise (340 ms). Phone, address, opening hours and form fields are never
   animated; the form is usable from the first frame.
 - **Phones:** reveals travel 8 px in 420 ms without stagger, so text is readable sooner while scrolling.
