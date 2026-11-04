@@ -157,11 +157,13 @@ optional `NEXT_PUBLIC_SANITY_API_VERSION`. Server-only secrets: `RESEND_API_KEY`
 No Sanity token is needed (published content is read anonymously). Checked: no secret names in browser chunks.
 
 ## Setup steps that need the owner (not done; no accounts were created)
-1. **Sanity:** create a free account and project at sanity.io/manage (dataset `production`, public), set the two
-   `NEXT_PUBLIC_SANITY_*` variables locally and on the host, then add CORS origins with credentials:
-   `npx sanity cors add http://localhost:3000 --credentials` and the production URL. Studio schemas need no deploy step.
-2. **Initial content (needs explicit approval, writes to the real dataset):**
-   `npx sanity dataset import sanity/seed/initial-content.ndjson production --missing`
+1. **Sanity:** done by the owner (Milestone 3.1, 2026-11-04): project `39r5k6e8`, dataset `production` (public), set
+   locally in `.env.local` (git-ignored); still to set on the host. CORS origins with credentials verified for
+   `http://localhost:3100` (the project's preview port) and `:3333`; `http://localhost:3000` is NOT allowed, so
+   `next dev` on its default port cannot authenticate the Studio. Add the production URL (and `:3000` if used) with
+   credentials in sanity.io/manage → API → CORS origins. Studio schemas need no deploy step.
+2. **Initial content (needs explicit approval, writes to the real dataset).** Sanity CLI 8.x syntax, after `npx sanity login`:
+   `npx sanity datasets import sanity/seed/initial-content.ndjson --dataset production --missing`
    (`--missing` skips documents that already exist: no overwrites, no duplicates). Then add the first weekly menu in the Studio.
 3. **Members:** invite each staff member with their own login (sanity.io/manage → Members).
 4. **Resend:** create an account, verify a sending domain the operator controls (DNS records: needs approval), create a
@@ -172,8 +174,9 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
 
 ## Backup and recovery
 - Sanity keeps document history (restore earlier versions in the Studio; retention per plan).
-- Regular exports (e.g. monthly and before larger changes): `npx sanity dataset export production backup-YYYY-MM-DD.tar.gz`,
-  stored outside Sanity. Restore with `npx sanity dataset import <file> production --replace` (deliberately, after review).
+- Regular exports (e.g. monthly and before larger changes): `npx sanity datasets export production backup-YYYY-MM-DD.tar.gz`,
+  stored outside Sanity. Restore with
+  `npx sanity datasets import <file> --dataset production --replace` (deliberately, after review).
 - Code, schemas, images and seed content are in Git.
 
 ## Design system implementation
