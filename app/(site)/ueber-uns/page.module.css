@@ -127,6 +127,28 @@
   object-position: 0% 50%;
 }
 
+/*
+ * Milestone 5: while the frame's photo window opens (data-revealed="animate", set by RevealObserver on
+ * first encounter), the picture itself settles from 103 % to its natural size inside the clipped frame,
+ * so the main Rundgang photo moves like the other revealed photographs. Same trigger, once per route;
+ * nothing runs in the "done" state (route return, Back/Forward), without JavaScript or with reduced
+ * motion. Transform only: crop, frame size and caption are unchanged.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .tourFrame[data-revealed="animate"] .tourImage {
+    /* Same length as the frame's window (900 ms), so it ends exactly when the frame turns "done". A
+       gentler curve than --ease-out (which finishes almost everything in the first 250 ms, while the
+       frame is still fading in) keeps the settle perceptible through the window's opening. */
+    animation: tour-image-settle 900ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+}
+
+@keyframes tour-image-settle {
+  from {
+    transform: scale(1.03);
+  }
+}
+
 .tourMain figcaption {
   padding-inline: var(--gutter);
 }
