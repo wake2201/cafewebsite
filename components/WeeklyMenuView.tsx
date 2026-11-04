@@ -32,7 +32,7 @@ export function WeeklyMenuView({
   return (
     <section className={styles.section} aria-labelledby={id}>
       <div className={`container ${styles.layout}`}>
-        <div className={styles.intro}>
+        <div className={styles.intro} data-reveal>
           <Heading id={id} className={styles.title}>
             Wochenkarte
           </Heading>
@@ -53,7 +53,7 @@ export function WeeklyMenuView({
 
         {menu ? (
           <>
-            <ol className={styles.days}>
+            <ol className={styles.days} data-reveal data-reveal-step="1">
               {menu.days.map((day) => {
                 const isToday = !isPreview && day.date === todayIso;
                 return (
@@ -99,7 +99,7 @@ export function WeeklyMenuView({
             </ul>
           </>
         ) : (
-          <div className={styles.empty}>
+          <div className={styles.empty} data-reveal data-reveal-step="1">
             <p>
               Für diese Woche ist hier noch keine Wochenkarte eingetragen
               {selection.status === "none" && selection.lastValidTo ? (
@@ -109,7 +109,10 @@ export function WeeklyMenuView({
             </p>
             <p>
               Was es heute zu Mittag gibt, erfahren Sie telefonisch unter{" "}
-              <a href={phone.href}>{phone.display}</a>.
+              <a href={phone.href} className="text-link">
+                {phone.display}
+              </a>
+              .
             </p>
           </div>
         )}

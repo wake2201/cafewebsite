@@ -146,13 +146,20 @@
     aspect-ratio: 9 / 4;
   }
 
-  /* The card sits on the photo's lower edge, right column; the caption stays left of it. */
+  /*
+   * Milestone 4.1: the card lies inside the photo's lower-right corner (same grid area as the frame,
+   * inset from its bottom and right edges) instead of hanging over the lower edge. Bottom-anchored,
+   * so a longer card (lunch dishes) grows upward into the picture, never below the first screen;
+   * at 1440x900 and 1720x900 the whole card sits above the fold.
+   */
   .heroToday {
     grid-column: 9 / span 4;
     grid-row: 2;
     align-self: end;
     z-index: 1;
-    margin-bottom: calc(var(--space-6) * -1);
+    /* Measured from the figure's bottom, which includes the one-line caption under the frame. */
+    margin-bottom: calc(var(--space-8) + var(--space-4));
+    margin-right: var(--space-6);
     padding: var(--space-4) var(--space-5) var(--space-5);
     background: var(--color-surface);
     border-radius: var(--radius);
@@ -481,10 +488,6 @@
   font-size: var(--step-2);
   text-decoration: none;
   white-space: nowrap;
-}
-
-.visitPhone:hover {
-  text-decoration: underline;
 }
 
 .visitNote {

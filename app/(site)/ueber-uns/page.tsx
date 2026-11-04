@@ -52,7 +52,7 @@ export default async function UeberUnsPage() {
 
       <section className={styles.tour} aria-labelledby="rundgang">
         <div className="container">
-          <h2 id="rundgang" className={styles.sectionTitle}>
+          <h2 id="rundgang" className={styles.sectionTitle} data-reveal>
             Ein Rundgang
           </h2>
           {/* Milestone 4: the long view down the counter replaces a near-duplicate of the opening photo.
@@ -88,7 +88,7 @@ export default async function UeberUnsPage() {
 
       <section className={styles.tables} aria-labelledby="tafeln">
         <div className={`container ${styles.tablesGrid}`}>
-          <div className={styles.tablesText}>
+          <div className={styles.tablesText} data-reveal>
             <h2 id="tafeln" className={styles.sectionTitle}>
               Gedeckte Tafeln
             </h2>
@@ -97,14 +97,14 @@ export default async function UeberUnsPage() {
               Sie uns gern nach den Möglichkeiten für Ihren Anlass.
             </p>
             <p>
-              <a href={contact.phone.href} className={styles.phone}>
+              <a href={contact.phone.href} className={`${styles.phone} text-link text-link-quiet`}>
                 {contact.phone.display}
               </a>
             </p>
           </div>
           {/* The close-up shows what the text promises (Kuchenplatten und Canapés), next to the long table. */}
           <div className={styles.filmstrip}>
-            <figure>
+            <figure data-reveal="photo" data-reveal-step="1">
               <Image
                 src={platten}
                 alt="Platten mit Kuchenstücken und belegten Canapés auf einer weiß gedeckten Tafel"
@@ -113,7 +113,7 @@ export default async function UeberUnsPage() {
                 style={{ aspectRatio: `${platten.width} / ${platten.height}` }}
               />
             </figure>
-            <figure>
+            <figure data-reveal="photo" data-reveal-step="2">
               <Image
                 src={festtafel}
                 alt="Lange Festtafel mit weißen Tischdecken, Gedecken, Rosen und Platten mit Kuchen und Canapés"
@@ -128,11 +128,15 @@ export default async function UeberUnsPage() {
 
       <section className={styles.signoff} aria-label="Besuch">
         <div className={`container ${styles.signoffInner}`}>
-          <p className={styles.signoffLine}>Wir freuen uns auf Ihren Besuch.</p>
-          <p className={styles.signature}>Ihr {cafe.name}, das freundliche Team</p>
-          <p className={styles.links}>
-            <Link href="/speisekarte">Zur Speisekarte</Link>
-            <Link href="/kontakt">Kontakt und Anfahrt</Link>
+          <p className={styles.signoffLine} data-reveal>Wir freuen uns auf Ihren Besuch.</p>
+          <p className={styles.signature} data-reveal data-reveal-step="1">Ihr {cafe.name}, das freundliche Team</p>
+          <p className={styles.links} data-reveal data-reveal-step="2">
+            <Link href="/speisekarte" className="text-link">
+              Zur Speisekarte
+            </Link>
+            <Link href="/kontakt" className="text-link">
+              Kontakt und Anfahrt
+            </Link>
           </p>
         </div>
       </section>

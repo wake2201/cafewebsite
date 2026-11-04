@@ -58,15 +58,15 @@ export default async function HomePage() {
 
       <section className={styles.board} aria-labelledby="angebot">
         <div className="container">
-          <div className={styles.boardHead}>
+          <div className={styles.boardHead} data-reveal>
             <h2 id="angebot" className={styles.sectionTitle}>
               Was es bei uns gibt
             </h2>
-            <Link href="/speisekarte" className={styles.textLink}>
+            <Link href="/speisekarte" className={`${styles.textLink} text-link`}>
               Zur Speisekarte
             </Link>
           </div>
-          <ul className={styles.boardList}>
+          <ul className={styles.boardList} data-reveal data-reveal-step="1">
             {offers.map((offer) => (
               <li key={offer.title} className={styles.boardRow}>
                 <span className={styles.boardTitle}>{offer.title}</span>
@@ -80,7 +80,7 @@ export default async function HomePage() {
 
       <section className={styles.party} aria-labelledby="feiern">
         <div className={`container ${styles.partyGrid}`}>
-          <figure className={styles.partyMain}>
+          <figure className={styles.partyMain} data-reveal="photo">
             <Image
               src={festtafel}
               alt="Lange, weiß eingedeckte Festtafel im Café mit Platten voller Kuchen und Canapés vor der Fensterfront"
@@ -91,7 +91,7 @@ export default async function HomePage() {
               style={{ aspectRatio: `${festtafel.width} / ${festtafel.height}` }}
             />
           </figure>
-          <div className={styles.partyText}>
+          <div className={styles.partyText} data-reveal data-reveal-step="1">
             <h2 id="feiern" className={styles.sectionTitle}>
               Feiern im Café
             </h2>
@@ -102,12 +102,12 @@ export default async function HomePage() {
             </p>
             <p>
               Sprechen Sie uns für Ihren Termin einfach an:{" "}
-              <a href={contact.phone.href} className={styles.inlinePhone}>
+              <a href={contact.phone.href} className={`${styles.inlinePhone} text-link`}>
                 {contact.phone.display}
               </a>
             </p>
           </div>
-          <figure className={styles.partyDetail}>
+          <figure className={styles.partyDetail} data-reveal="photo" data-reveal-step="2">
             <Image
               src={kaffeetafel}
               alt="Gedeckte Kaffeetafel am Fenster mit Kuchenstücken, Canapés und einer roten Rose"
@@ -121,14 +121,14 @@ export default async function HomePage() {
 
       <section className={styles.visit} aria-labelledby="besuch">
         <div className={`container ${styles.visitGrid}`}>
-          <h2 id="besuch" className={styles.visitTitle}>
+          <h2 id="besuch" className={styles.visitTitle} data-reveal>
             Besuchen Sie uns
           </h2>
-          <div className={styles.visitBlock}>
+          <div className={styles.visitBlock} data-reveal data-reveal-step="1">
             <h3 className={styles.visitLabel}>Öffnungszeiten</h3>
             <OpeningHours tone="dark" />
           </div>
-          <div className={styles.visitBlock}>
+          <div className={styles.visitBlock} data-reveal data-reveal-step="2">
             <h3 className={styles.visitLabel}>Adresse</h3>
             <address className={styles.address}>
               {cafe.name}
@@ -138,22 +138,24 @@ export default async function HomePage() {
               {contact.address.postalCode} {contact.address.city}
             </address>
             <p>
-              <a href={contact.directionsUrl} rel="noopener" target="_blank">
+              <a href={contact.directionsUrl} rel="noopener" target="_blank" className="text-link">
                 Route in Google Maps öffnen
                 <span className="visually-hidden"> (öffnet in neuem Tab)</span>
               </a>
             </p>
           </div>
-          <div className={styles.visitBlock}>
+          <div className={styles.visitBlock} data-reveal data-reveal-step="3">
             <h3 className={styles.visitLabel}>Telefon</h3>
             <p>
-              <a href={contact.phone.href} className={styles.visitPhone}>
+              <a href={contact.phone.href} className={`${styles.visitPhone} text-link text-link-quiet`}>
                 {contact.phone.display}
               </a>
             </p>
             <p className={styles.visitNote}>Vorbestellungen und Fragen gern telefonisch.</p>
             <p>
-              <Link href="/kontakt">Kontakt und Anfahrt</Link>
+              <Link href="/kontakt" className="text-link">
+                Kontakt und Anfahrt
+              </Link>
             </p>
           </div>
         </div>

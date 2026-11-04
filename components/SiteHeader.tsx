@@ -23,7 +23,7 @@ export async function SiteHeader() {
         <nav aria-label="Hauptnavigation" className={styles.nav}>
           <NavLinks />
         </nav>
-        <a href={contact.phone.href} className={styles.phone}>
+        <a href={contact.phone.href} className={`${styles.phone} text-link text-link-quiet`}>
           <span className="visually-hidden">Telefon: </span>
           {contact.phone.display}
         </a>

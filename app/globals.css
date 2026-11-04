@@ -179,7 +179,18 @@ a:hover {
   color: var(--color-surface);
 }
 
-/* Buttons: one solid primary, one quiet text-style secondary. */
+/*
+ * Interaction vocabulary (Milestone 4.1). Six effects, reused everywhere, nothing else:
+ *   1. button lift      .button            espresso to terracotta, 2px lift, presses flat
+ *   2. nav underline    SiteHeader.module  draws in from the left, leaves to the right
+ *   3. text-link ink    .text-link         a quiet rule under the text, inked in on hover/focus
+ *   4. section rise     [data-reveal]      fade + 14px rise, once, when scrolled into view
+ *   5. photo window     [data-reveal=photo] the photo opens from a slight inset (echoes the hero)
+ *   6. scroll depth     page CSS modules   existing Milestone 4 scroll-linked photo effects
+ * Hover-only movement sits behind (hover: hover) so touch screens never keep a stuck hover state.
+ */
+
+/* ---------- 1. Buttons: one solid primary, one quiet secondary ---------- */
 .button {
   display: inline-flex;
   align-items: center;
@@ -193,26 +204,55 @@ a:hover {
   color: var(--color-surface);
   font: 500 var(--step-0) / 1.2 var(--font-sans-stack);
   text-decoration: none;
-  transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease),
-    color var(--duration) var(--ease), transform 120ms var(--ease);
+  transition: background-color 240ms var(--ease), border-color 240ms var(--ease), color 240ms var(--ease),
+    box-shadow 240ms var(--ease), transform 240ms var(--ease-out);
 }
 
+/* Keeps the generic a:hover accent off button labels on touch screens (where no lift applies). */
+.button:hover:not(:disabled) {
+  color: var(--color-surface);
+}
+
+.button-quiet:hover:not(:disabled) {
+  color: var(--color-accent-strong);
+}
+
+@media (hover: hover) {
+  .button:hover:not(:disabled) {
+    background: var(--color-accent-strong);
+    border-color: var(--color-accent-strong);
+    color: var(--color-surface);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px -8px rgba(49, 40, 32, 0.55);
+  }
+
+  .button-quiet:hover:not(:disabled) {
+    background: var(--color-surface);
+    color: var(--color-accent-strong);
+    border-color: var(--color-accent);
+    box-shadow: none;
+  }
+}
+
+/* Pressed: back on the paper, a shade darker, fast. */
 .button:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: translateY(0);
+  box-shadow: none;
+  background: #5e3324;
+  border-color: #5e3324;
+  color: var(--color-surface);
+  transition-duration: 80ms;
 }
 
-.button:disabled,
-.button:disabled:hover {
+.button:focus-visible {
+  outline-offset: 4px;
+}
+
+.button:disabled {
   background: #e9e1d6;
   border-color: var(--color-border);
   color: var(--color-muted);
   cursor: not-allowed;
-}
-
-.button:hover {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent-strong);
-  color: var(--color-surface);
 }
 
 .button-quiet {
@@ -220,10 +260,93 @@ a:hover {
   color: var(--color-text);
 }
 
-.button-quiet:hover {
-  background: transparent;
-  color: var(--color-accent);
-  border-color: var(--color-accent);
+/* ---------- 3. Text links: a resting rule, inked in on hover and keyboard focus ---------- */
+/*
+ * Two background layers instead of text-decoration, because the ink has to travel. The resting rule
+ * is the link colour at low strength; the ink grows from the left and, on leaving, retracts to the
+ * right. Works across wrapped lines. `.text-link-quiet` drops the resting rule (phone numbers set
+ * large in the serif, footer lists), so only the ink appears.
+ */
+.text-link {
+  --link-rest: rgba(49, 40, 32, 0.28);
+  --link-rest: color-mix(in srgb, currentColor 34%, transparent);
+
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor), linear-gradient(var(--link-rest), var(--link-rest));
+  background-repeat: no-repeat;
+  background-size: 0% 1px, 100% 1px;
+  background-position: 100% 100%, 0 100%;
+  /* Padded links (touch targets) keep the rule under the text, not under the padding. */
+  background-origin: content-box;
+  transition: color var(--duration) var(--ease), background-size 300ms var(--ease-out);
+}
+
+.text-link-quiet {
+  --link-rest: transparent;
+}
+
+.text-link:hover,
+.text-link:focus-visible {
+  background-size: 100% 1px, 100% 1px;
+  background-position: 0 100%, 0 100%;
+}
+
+/* ---------- 4/5. Scroll reveals ---------- */
+/*
+ * Content is visible by default. Only once the RevealObserver script is running does it mark
+ * <html data-reveal-ready> and hide [data-reveal] elements that are still below the fold; elements already
+ * on screen are marked revealed first, so nothing visible ever disappears. Without JavaScript, with
+ * reduced motion, or in print, there is no hidden state at all. Each element reveals once.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-reveal-ready] [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  html[data-reveal-ready] [data-reveal="photo"]:not([data-revealed]) {
+    transform: none;
+    clip-path: inset(7% 5% round var(--radius));
+  }
+
+  html[data-reveal-ready] [data-reveal][data-revealed="animate"] {
+    animation: reveal-rise 620ms var(--reveal-delay, 0ms) var(--ease-out) both;
+  }
+
+  html[data-reveal-ready] [data-reveal="photo"][data-revealed="animate"] {
+    animation: reveal-window 900ms var(--reveal-delay, 0ms) var(--ease-out) both;
+  }
+
+  /* Small, capped stagger: at most three steps of 90 ms. */
+  [data-reveal-step="1"] {
+    --reveal-delay: 90ms;
+  }
+
+  [data-reveal-step="2"] {
+    --reveal-delay: 180ms;
+  }
+
+  [data-reveal-step="3"] {
+    --reveal-delay: 270ms;
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes reveal-window {
+  from {
+    opacity: 0.4;
+    clip-path: inset(7% 5% round var(--radius));
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 round var(--radius));
+  }
 }
 
 .tabular {
@@ -237,6 +360,20 @@ a:hover {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  /* Colour feedback stays (instantly); spatial movement goes. */
+  .button:hover:not(:disabled),
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+@media print {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
   }
 }
 

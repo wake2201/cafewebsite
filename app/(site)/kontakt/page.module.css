@@ -57,7 +57,6 @@
 
 .phone:hover {
   color: var(--color-accent-strong);
-  text-decoration: underline;
 }
 
 .block {
@@ -75,15 +74,31 @@
   font-weight: 500;
 }
 
-.small {
-  margin-top: var(--space-3);
+/* Breakfast and lunch times directly under the "Öffnungszeiten" label; each pair wraps as a unit. */
+.mealTimes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-5);
+  margin-top: calc(var(--space-2) * -1);
+  margin-bottom: var(--space-1);
   font-size: var(--step--1);
   color: var(--color-muted);
 }
 
-.small a {
-  color: var(--color-accent);
-  font-weight: 500;
+.mealTimes > span {
+  white-space: nowrap;
+}
+
+.mealTime {
+  font-family: var(--font-serif-stack);
+  font-style: italic;
+  font-size: 1.06em;
+  color: var(--color-text);
+}
+
+.small {
+  margin-top: var(--space-3);
+  font-size: var(--step--1);
 }
 
 /* ---------- Message sheet (right) ---------- */

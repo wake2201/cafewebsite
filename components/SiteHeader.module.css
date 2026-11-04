@@ -35,10 +35,6 @@
   padding-block: var(--space-3);
 }
 
-.phone:hover {
-  text-decoration: underline;
-}
-
 .nav {
   grid-area: nav;
   margin-top: var(--space-2);
@@ -49,10 +45,15 @@
   scrollbar-width: none;
 }
 
+/*
+ * Each link carries 0.5rem of inner padding (larger hit area, and room for an inset focus ring that
+ * the scrollable nav's overflow cannot clip); list gap and margin subtract it again, so the visible
+ * spacing and alignment are unchanged.
+ */
 .navList {
   display: flex;
-  gap: var(--space-5);
-  margin: 0;
+  gap: calc(var(--space-5) - 2 * var(--space-2));
+  margin: 0 calc(var(--space-2) * -1);
   padding: 0;
   list-style: none;
 }
@@ -66,6 +67,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 48px;
+  padding-inline: var(--space-2);
   white-space: nowrap;
   text-decoration: none;
   font-size: var(--step--1);
@@ -75,26 +77,37 @@
   transition: color var(--duration) var(--ease);
 }
 
-/* Underline grows from the left on hover and marks the current page. */
+/*
+ * Underline draws in from the left on hover or keyboard focus and leaves to the right (the origin
+ * flips with the state), so it reads as one stroke passing through. Transform only: no layout shift.
+ * The current page keeps a permanent 2px terracotta rule; hovering it changes nothing.
+ */
 .navLink::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
+  left: var(--space-2);
+  right: var(--space-2);
   bottom: 0.55rem;
   height: 1px;
   background: currentColor;
   transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 220ms var(--ease-out);
+  transform-origin: right;
+  transition: transform 280ms var(--ease-out);
 }
 
-.navLink:hover {
+.navLink:hover,
+.navLink:focus-visible {
   color: var(--color-text);
 }
 
-.navLink:hover::after {
+.navLink:focus-visible {
+  outline-offset: -2px;
+}
+
+.navLink:hover::after,
+.navLink:focus-visible::after {
   transform: scaleX(1);
+  transform-origin: left;
 }
 
 .navLink[aria-current="page"] {
@@ -105,6 +118,18 @@
   height: 2px;
   background: var(--color-accent);
   transform: scaleX(1);
+  transition: none;
+}
+
+/* The logo answers the pointer quietly; its own focus ring comes from the global style. */
+.brand {
+  transition: opacity var(--duration) var(--ease);
+}
+
+@media (hover: hover) {
+  .brand:hover {
+    opacity: 0.82;
+  }
 }
 
 @media (min-width: 48rem) {
@@ -126,7 +151,7 @@
   }
 
   .navList {
-    gap: var(--space-6);
+    gap: calc(var(--space-6) - 2 * var(--space-2));
   }
 
   .navList li:first-child {

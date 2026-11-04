@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { RevealObserver } from "./RevealObserver";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
@@ -14,6 +15,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
         {children}
       </main>
       <SiteFooter />
+      <RevealObserver />
     </>
   );
 }

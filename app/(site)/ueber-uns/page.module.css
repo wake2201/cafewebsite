@@ -248,10 +248,6 @@
   white-space: nowrap;
 }
 
-.phone:hover {
-  text-decoration: underline;
-}
-
 /* Two photos at a shared height: column widths follow their aspect ratios (4:3 and 4:5). */
 .filmstrip {
   display: grid;

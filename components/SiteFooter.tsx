@@ -16,11 +16,15 @@ export async function SiteFooter() {
             <br />
             {contact.address.postalCode} {contact.address.city}
             <br />
-            <a href={contact.phone.href}>{contact.phone.display}</a>
+            <a href={contact.phone.href} className="text-link">
+              {contact.phone.display}
+            </a>
             {contact.email ? (
               <>
                 <br />
-                <a href={`mailto:${contact.email}`}>{contact.email}</a>
+                <a href={`mailto:${contact.email}`} className="text-link">
+                  {contact.email}
+                </a>
               </>
             ) : null}
           </address>
@@ -31,7 +35,9 @@ export async function SiteFooter() {
           <ul className={styles.links}>
             {[...primaryNav, ...legalNav].map((item) => (
               <li key={item.href}>
-                <Link href={item.href}>{item.label}</Link>
+                <Link href={item.href} className="text-link text-link-quiet">
+                  {item.label}
+                </Link>
               </li>
             ))}
           </ul>

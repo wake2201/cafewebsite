@@ -226,6 +226,14 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
   `party-depth` (homepage Festtafel, `.partyMain` is `align-self: start` so the frame equals the photo) and
   `tour-settle` / `tour-follow` (Über uns Rundgang). Only transforms; overflow-hidden frames; verified cover ≥ 4.6 px at
   both drift extremes. The global reduced-motion rule in `globals.css` collapses any remaining durations.
+- **Interactions and reveals (Milestone 4.1):** shared vocabulary in `app/globals.css` (`.button`, `.text-link`,
+  `.text-link-quiet`, `[data-reveal]`, `[data-reveal="photo"]`, `data-reveal-step`); nav underline in
+  `SiteHeader.module.css`. Scroll reveals use one client component, `components/RevealObserver.tsx` (mounted in
+  `SiteChrome`, about 40 lines, no dependency): in a layout effect it marks on-screen elements `data-revealed="instant"`,
+  observes the rest with an IntersectionObserver, then sets `<html data-reveal-ready>`, the only selector under which
+  CSS hides anything. Re-runs per pathname for client-side navigation. Native `animation-timeline: view()` was not used
+  for these entrances: it scrubs with scroll position (DESIGN.md forbids scroll-tied opacity), cannot give a fixed
+  400 to 650 ms entrance, and is not available in every target browser.
 - **GSAP evaluated and removed:** the interrupted Milestone 4 prototype (`gsap`, `@gsap/react`, ScrollTrigger, SplitText,
   client wrappers, a CSS visibility gate with a 3 s failsafe and a `<noscript>` override) added ~49 KB gzip to the homepage
   and needed a client-side gate to avoid a first-paint flash. Removed entirely; `package.json` and the lockfile are back

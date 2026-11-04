@@ -31,7 +31,7 @@ export default async function KontaktPage() {
 
         <p className={styles.phoneBlock}>
           <span className={styles.label}>Telefon</span>
-          <a href={contact.phone.href} className={styles.phone}>
+          <a href={contact.phone.href} className={`${styles.phone} text-link text-link-quiet`}>
             {contact.phone.display}
           </a>
         </p>
@@ -51,11 +51,13 @@ export default async function KontaktPage() {
           </address>
           {contact.email ? (
             <p>
-              <a href={`mailto:${contact.email}`}>{contact.email}</a>
+              <a href={`mailto:${contact.email}`} className="text-link">
+                {contact.email}
+              </a>
             </p>
           ) : null}
           <p>
-            <a href={contact.directionsUrl} rel="noopener" target="_blank" className={styles.route}>
+            <a href={contact.directionsUrl} rel="noopener" target="_blank" className={`${styles.route} text-link`}>
               Route in Google Maps öffnen
               <span className="visually-hidden"> (öffnet in neuem Tab)</span>
             </a>
@@ -66,11 +68,27 @@ export default async function KontaktPage() {
           <h2 id="zeiten" className={styles.label}>
             Öffnungszeiten
           </h2>
+          {/* Milestone 4.1: meal times read as the heading's supporting line, before the rows, so they
+              are seen together with the hours instead of trailing below them. */}
+          {hours.breakfastFrom || hours.lunch ? (
+            <p className={styles.mealTimes}>
+              {hours.breakfastFrom ? (
+                <span>
+                  Frühstück ab <span className={styles.mealTime}>{hours.breakfastFrom} Uhr</span>
+                </span>
+              ) : null}
+              {hours.lunch ? (
+                <span>
+                  Mittagstisch <span className={styles.mealTime}>{formatRange(hours.lunch)}</span>
+                </span>
+              ) : null}
+            </p>
+          ) : null}
           <OpeningHours />
           <p className={styles.small}>
-            {hours.breakfastFrom ? <>Frühstück ab {hours.breakfastFrom} Uhr. </> : null}
-            {hours.lunch ? <>Mittagstisch {formatRange(hours.lunch)}. </> : null}
-            <Link href="/speisekarte">Zur Wochenkarte</Link>
+            <Link href="/speisekarte" className="text-link">
+              Zur Wochenkarte
+            </Link>
           </p>
         </section>
       </div>

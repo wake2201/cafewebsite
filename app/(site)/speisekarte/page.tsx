@@ -49,10 +49,10 @@ export default async function SpeisekartePage() {
 
       <section className={styles.standing} aria-labelledby="angebot">
         <div className="container">
-          <h2 id="angebot" className={styles.sectionTitle}>
+          <h2 id="angebot" className={styles.sectionTitle} data-reveal>
             Immer bei uns
           </h2>
-          <figure className={styles.strip}>
+          <figure className={styles.strip} data-reveal="photo">
             <Image
               src={theke}
               alt="Theke im Café am Lindenplatz mit hausgebackenem Kuchen, Kuchenvitrine und Kaffeemaschinen"
@@ -61,7 +61,7 @@ export default async function SpeisekartePage() {
               className={styles.stripImage}
             />
           </figure>
-          <div className={styles.groups}>
+          <div className={styles.groups} data-reveal>
             {standingOfferGroups.map((group, index) => (
               <section key={group.title} className={styles.group} aria-labelledby={`angebot-${index}`}>
                 <h3 id={`angebot-${index}`} className={styles.groupTitle}>
@@ -87,10 +87,10 @@ export default async function SpeisekartePage() {
 
       <section className={styles.order} aria-labelledby="vorbestellen">
         <div className={`container ${styles.orderGrid}`}>
-          <h2 id="vorbestellen" className={styles.orderTitle}>
+          <h2 id="vorbestellen" className={styles.orderTitle} data-reveal>
             Vorbestellen und abholen
           </h2>
-          <div className={styles.orderText}>
+          <div className={styles.orderText} data-reveal data-reveal-step="1">
             <p>
               Speisen gibt es auch zum Mitnehmen. Kuchenplatten und Canapés bereiten wir auf Bestellung vor. Für
               Vorbestellungen rufen Sie uns am besten an.
@@ -99,7 +99,7 @@ export default async function SpeisekartePage() {
               <a href={contact.phone.href} className="button">
                 Anrufen: {contact.phone.display}
               </a>
-              <Link href="/kontakt" className={styles.orderLink}>
+              <Link href="/kontakt" className={`${styles.orderLink} text-link`}>
                 Öffnungszeiten und Anfahrt
               </Link>
             </p>

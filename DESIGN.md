@@ -51,6 +51,26 @@ Typography strategy: one characterful editorial serif for expressive headlines (
 - **Never hides content:** no opacity or clip changes are tied to scroll; the entrance always runs to its end without
   JavaScript. `prefers-reduced-motion: reduce` disables every animation; unsupported browsers show the static layout.
 
+### Interaction vocabulary (Milestone 4.1)
+Six effects, reused site-wide, documented at the top of the interaction block in `app/globals.css`:
+1. **Button lift:** espresso to terracotta, 2 px lift and a small soft shadow on hover (pointer devices only), presses
+   flat and darker; disabled buttons never move.
+2. **Nav underline:** draws in from the left on hover and keyboard focus, leaves to the right; the current page keeps
+   its 2 px terracotta rule.
+3. **Text-link ink:** `.text-link` shows a quiet rule that is inked in on hover/focus; `.text-link-quiet` (large serif
+   phone numbers, footer lists) has no resting rule.
+4. **Section rise:** `data-reveal` elements fade and rise 14 px once, 620 ms, when they first enter the viewport;
+   stagger via `data-reveal-step` 1 to 3 (90 ms steps).
+5. **Photo window:** `data-reveal="photo"` opens a photograph from a slight inset, the hero's own gesture repeated at
+   smaller scale (homepage Feiern, Über uns Tafeln, Speisekarte strip).
+6. **Scroll depth:** the existing Milestone 4 scroll-linked photo effects, unchanged.
+
+Rules: only genuinely interactive elements get hover feedback (no photo or card on the site is a link, so none zoom);
+reveals are time-based and trigger once, never scrubbed by scroll; never on individual dishes, prices, weekdays or
+opening-hour rows; none on Kontakt. Reveals hide nothing until a small client script (`components/RevealObserver.tsx`)
+is running and has marked everything already on screen as revealed; no JavaScript, reduced motion or print means no
+hidden state.
+
 ## Image guidance
 - Review all legacy photos and select by narrative purpose: venue/arrival, baked cake, plated lunch, atmosphere, personal detail.
 - Preserve aspect ratios and avoid awkward cropping or excessive filtering; use responsive `next/image` with proper sizes, LCP priority when necessary.
