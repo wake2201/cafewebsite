@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — Café am Lindenplatz
 
 Implementation record, maintained by Claude Code. Requirements live in `PROJECT_BRIEF.md`, design direction in `DESIGN.md`.
-Last updated: 2026-11-04 (Milestone 3.2, branded admin).
+Last updated: 2026-11-04 (Milestone 3.3, caching and image hotfix).
 
 ## Stack
 - **Next.js 16.4.5** (App Router, Turbopack, Cache Components + Partial Prefetching), **React 19.3**, **TypeScript 5**, npm.
@@ -124,11 +124,21 @@ GROQ in `sanity/lib/queries.ts`, published perspective, no token: weekly menus e
 values (e.g. special hours without times count as closed; hidden offers and empty groups are omitted).
 
 ## Caching and freshness
-- One profile, `cms` = `{ stale: 60, revalidate: 120, expire: 3600 }` seconds, used by every data function and by the
-  date-dependent components (`WeeklyMenu`, `TodayPanel`, `OpeningHours`). Pages stay prerendered; after 2 minutes the next
-  request refreshes in the background.
-- **Published changes appear within about 2–3 minutes** (2 min revalidation + Sanity API CDN propagation + up to 60 s
-  client router cache). Date changes (new day, expired week, holiday start) follow the same rhythm.
+- One profile, `cms` = `{ stale: 300, revalidate: 120, expire: 3600 }` seconds (`next.config.ts`), used by every data
+  function and by the date-dependent components (`WeeklyMenu`, `TodayPanel`, `OpeningHours`). Pages stay prerendered;
+  after 2 minutes the next request refreshes in the background; after an hour without traffic the next request renders
+  fresh.
+- **Why `stale: 300` (Milestone 3.3):** with Cache Components + Partial Prefetching, Next 16.4 puts cached data into a
+  route's App Shell only when its `stale` is at least 5 minutes (bundled docs, `cacheLife` "Prerendering behavior").
+  With the former `stale: 60`, every page that awaits CMS data at the top level (all public pages and the shared
+  header/footer) blocked client navigation; dev validation reported "uncached data during prerendering or a
+  navigation" (dev diagnostic; production still rendered complete pages, but client navigations waited for the server).
+  A `<Suspense>` split was tried and rejected: in the prerendered HTML the date-dependent sections then shipped as
+  fallbacks swapped in by script, so the homepage's weekly menu and hours were missing without JavaScript.
+- **Published changes reach new page loads within about 2–3 minutes** (2 min revalidation + Sanity API CDN
+  propagation). A visitor already browsing may reuse a prefetched page for up to 5 minutes during client navigation; a
+  reload always gets the server's current version. Date changes (new day, expired week, holiday start) follow the same
+  rhythm; the Berlin date is recomputed on every server refresh, never frozen into a long-lived cache.
 - No webhooks, so no endpoint to secure. Time-based revalidation is enough for a café; if instant updates are ever
   needed, add a signed Sanity webhook (`next-sanity/webhook` `parseBody` with a secret) calling `revalidateTag`.
 - API usage: each cached entry refetches at most every 2 minutes while visited, via the Sanity API CDN; far inside
@@ -216,6 +226,10 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
 ## Images
 - Statically imported from `public/images` → `next/image` (intrinsic sizes, blur placeholders, AVIF/WebP). Sources ≤ 1200 px.
   Originals unmodified; only the logo trim and favicon crop are derivatives. No hotlinking or stock imagery. Not CMS-editable.
+- Where CSS sets `width: 100%; height: auto` on a lazy image, the `height` attribute no longer defines the box, so the
+  image gets an explicit `aspect-ratio` from its static import (`style={{ aspectRatio: `${img.width} / ${img.height}` }}`).
+  Done for the two homepage party photos (Milestone 3.3, measured CLS 0 at 1440x900 and 390x844). The three lazy
+  photos on `/ueber-uns` use the same CSS pattern and are not yet changed.
 
 ## Testing
 `npm test` (vitest): opening-hours logic incl. exceptions and Berlin midnight, menu selection, Sanity mappers and validation

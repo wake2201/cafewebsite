@@ -86,6 +86,9 @@ export default async function HomePage() {
               alt="Lange, weiß eingedeckte Festtafel im Café mit Platten voller Kuchen und Canapés vor der Fensterfront"
               sizes="(min-width: 56rem) 55vw, 100vw"
               placeholder="blur"
+              // CSS sets height:auto, which overrides the height attribute; an explicit ratio from the
+              // file's own dimensions keeps the box sized before the lazy image loads.
+              style={{ aspectRatio: `${festtafel.width} / ${festtafel.height}` }}
             />
           </figure>
           <div className={styles.partyText}>
@@ -110,6 +113,7 @@ export default async function HomePage() {
               alt="Gedeckte Kaffeetafel am Fenster mit Kuchenstücken, Canapés und einer roten Rose"
               sizes="(min-width: 56rem) 26vw, 60vw"
               placeholder="blur"
+              style={{ aspectRatio: `${kaffeetafel.width} / ${kaffeetafel.height}` }}
             />
           </figure>
         </div>
