@@ -11,7 +11,10 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@sanity/icons": "^5.2.3",
     "@sanity/locale-de-de": "^1.1.37",
+    "@sanity/themer": "^0.10.6",
+    "@sanity/ui": "^4.4.10",
     "next": "16.4.5",
     "next-sanity": "^13.4.0",
     "react": "19.3.0",

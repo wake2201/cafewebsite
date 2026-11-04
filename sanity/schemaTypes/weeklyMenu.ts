@@ -1,3 +1,4 @@
+import { CalendarIcon } from "@sanity/icons/Calendar";
 import { defineArrayMember, defineField, defineType } from "sanity";
 import {
   formatGermanDate,
@@ -37,18 +38,18 @@ const dish = defineArrayMember({
       validation: (rule) => rule.required().error("Bitte den Namen des Gerichts eintragen.").max(140),
     }),
     defineField({
-      name: "description",
-      title: "Beschreibung (optional)",
-      type: "string",
-      description: "Kurzer Zusatz, erscheint klein unter dem Gericht.",
-      validation: (rule) => rule.max(200),
-    }),
-    defineField({
       name: "price",
       title: "Preis in Euro (optional)",
       type: "number",
       description: "Nur die Zahl, mit Punkt statt Komma: 10.90. Leer lassen, wenn kein Preis angezeigt werden soll.",
       validation: (rule) => rule.custom((value: number | undefined) => validatePrice(value)),
+    }),
+    defineField({
+      name: "description",
+      title: "Beschreibung (optional)",
+      type: "string",
+      description: "Kurzer Zusatz, erscheint klein unter dem Gericht.",
+      validation: (rule) => rule.max(200),
     }),
   ],
   preview: {
@@ -64,12 +65,13 @@ const menuDay = defineArrayMember({
   type: "object",
   name: "menuDay",
   title: "Tag",
+  icon: CalendarIcon,
   fields: [
     defineField({
       name: "date",
       title: "Datum",
       type: "date",
-      options: { dateFormat: "dddd, D. MMMM YYYY" },
+      options: { dateFormat: "DD.MM.YYYY" },
       validation: (rule) => rule.required().error("Bitte das Datum des Tages wählen."),
     }),
     defineField({
@@ -104,9 +106,13 @@ const menuDay = defineArrayMember({
             timeZone: "UTC",
           })
         : "Datum fehlt",
+      // The dish names themselves, so a week can be checked without opening every day.
       subtitle: closed
         ? "geschlossen"
-        : `${(dishes as unknown[] | undefined)?.length ?? 0} Gericht(e)`,
+        : ((dishes as { name?: string }[] | undefined) ?? [])
+            .map((d) => d.name)
+            .filter(Boolean)
+            .join(", ") || "noch keine Gerichte",
     }),
   },
 });
@@ -114,22 +120,27 @@ const menuDay = defineArrayMember({
 export const weeklyMenuType = defineType({
   name: "weeklyMenu",
   title: "Wochenkarte",
+  icon: CalendarIcon,
   type: "document",
+  // Both dates side by side (one column on narrow screens).
+  fieldsets: [{ name: "zeitraum", title: "Zeitraum", options: { columns: 2 } }],
   fields: [
     defineField({
       name: "validFrom",
       title: "Gültig ab",
       type: "date",
-      description: "Erster Tag dieser Wochenkarte. Die Karte erscheint auf der Website automatisch ab diesem Tag.",
-      options: { dateFormat: "dddd, D. MMMM YYYY" },
+      fieldset: "zeitraum",
+      description: "Ab diesem Tag auf der Website.",
+      options: { dateFormat: "DD.MM.YYYY" },
       validation: (rule) => rule.required().error("Bitte den ersten Tag wählen."),
     }),
     defineField({
       name: "validTo",
       title: "Gültig bis",
       type: "date",
-      description: "Letzter Tag dieser Wochenkarte. Danach verschwindet sie automatisch von der Website.",
-      options: { dateFormat: "dddd, D. MMMM YYYY" },
+      fieldset: "zeitraum",
+      description: "Danach automatisch ausgeblendet.",
+      options: { dateFormat: "DD.MM.YYYY" },
       validation: (rule) =>
         rule
           .required()

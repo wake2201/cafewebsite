@@ -11,7 +11,11 @@ bei der Person, die die Website betreut.
 1. Öffnen Sie im Browser die Adresse der Website mit **/admin** am Ende, zum Beispiel `www.ihre-website.de/admin`.
 2. Melden Sie sich mit **Ihrem eigenen Zugang** an (Google, GitHub oder E-Mail mit Passwort, je nachdem, wie Sie eingeladen
    wurden).
-3. Links sehen Sie vier Bereiche: **Wochenkarte**, **Speisen & Getränke**, **Öffnungszeiten & Urlaub**, **Kontaktdaten**.
+3. Die Anmeldeseite zeigt das Logo des Cafés und die Anmeldung über Sanity (den Dienst, in dem die Inhalte gespeichert
+   sind). Das ist richtig so.
+4. Nach der Anmeldung sehen Sie die Startseite **Inhalte bearbeiten** mit vier Bereichen: **Wochenkarte**,
+   **Speisen & Getränke**, **Öffnungszeiten & Urlaub**, **Kontaktdaten**. Unter **Wochenkarte** steht, ob für diese Woche
+   und für die kommende Zeit schon eine Karte veröffentlicht ist. Auf dem Handy führt der Pfeil oben links zurück.
 
 Wichtig:
 - Jede Person hat einen eigenen Zugang. Zugangsdaten bitte nie weitergeben oder gemeinsam nutzen.
@@ -23,16 +27,17 @@ Wichtig:
 ## 2. Wochenkarte anlegen oder ändern
 
 **Neue Woche anlegen**
-1. Links auf **Wochenkarte** klicken, dann oben auf das **Plus-Zeichen** (neues Dokument).
+1. Auf **Wochenkarte** klicken, dann oben auf das **Plus-Zeichen** (neues Dokument). Es öffnet sich „Neu: Wochenkarte“.
 2. Die nächste Woche ist schon vorbereitet: Montag bis Freitag, Mittwoch als „geschlossen“. Prüfen Sie
-   **Gültig ab** (erster Tag) und **Gültig bis** (letzter Tag).
-3. Bei **Tage** einen Tag öffnen und unter **Gerichte** auf **Hinzufügen** klicken:
+   **Gültig ab** (erster Tag) und **Gültig bis** (letzter Tag), im Format TT.MM.JJJJ.
+   In der Liste der Tage stehen Wochentag, Datum und die schon eingetragenen Gerichte.
+3. Bei **Tage** einen Tag öffnen und unter **Gerichte** auf **Element hinzufügen** klicken:
    - **Gericht**: so, wie es auf der Karte stehen soll, z. B. „Spaghetti Bolognese, Dessert“.
    - **Beschreibung**: optional, erscheint klein darunter.
    - **Preis in Euro**: nur die Zahl, **mit Punkt statt Komma**, z. B. `10.90`. Leer lassen, wenn kein Preis angezeigt werden soll.
-   - Ein Tag kann **mehrere Gerichte** haben: einfach mehrmals „Hinzufügen“.
+   - Ein Tag kann **mehrere Gerichte** haben: einfach mehrmals „Element hinzufügen“.
 4. Ruhetag oder geschlossener Tag: beim Tag **„An diesem Tag geschlossen“** einschalten.
-5. Einen weiteren Tag (z. B. Samstag) brauchen Sie? Unter **Tage** auf **Hinzufügen** klicken und das Datum wählen.
+5. Einen weiteren Tag (z. B. Samstag) brauchen Sie? Unter **Tage** auf **Element hinzufügen** klicken und das Datum wählen.
 6. **Hinweise unter der Karte** sind schon ausgefüllt und können angepasst werden.
 7. Unten rechts auf **Veröffentlichen** klicken.
 
@@ -50,13 +55,13 @@ Wichtig:
 
 ## 3. Speisen & Getränke (ständiges Angebot) und Preise
 
-1. Links auf **Speisen & Getränke** klicken.
+1. Auf **Speisen & Getränke** klicken.
 2. Die **Bereiche** (z. B. „Kaffee und Kuchen“) enthalten **Einträge** (z. B. „Hausgebackener Kuchen“).
 3. Einen Eintrag anklicken und ändern:
    - **Name**, **Beschreibung** (kurz, z. B. „auf Bestellung“), **Zeitangabe** (z. B. „ab 08:00 Uhr“),
    - **Preis in Euro**: optional, mit Punkt statt Komma, z. B. `3.20`,
    - **Auf der Website zeigen**: ausschalten, um einen Eintrag vorübergehend auszublenden, ohne ihn zu löschen.
-4. **Neuer Eintrag**: im Bereich auf **Hinzufügen** klicken. **Reihenfolge**: Einträge am Griff links verschieben.
+4. **Neuer Eintrag**: im Bereich auf **Element hinzufügen** klicken. **Reihenfolge**: Einträge am Griff links verschieben.
 5. **Veröffentlichen** klicken.
 
 Bitte nur echte Angebote eintragen, die es im Café wirklich gibt.
@@ -65,13 +70,13 @@ Bitte nur echte Angebote eintragen, die es im Café wirklich gibt.
 
 ## 4. Öffnungszeiten, Urlaub und besondere Tage
 
-1. Links auf **Öffnungszeiten & Urlaub** klicken.
+1. Auf **Öffnungszeiten & Urlaub** klicken.
 2. **Regelmäßige Öffnungszeiten**: für jeden Wochentag **Öffnet um** und **Schließt um** im Format `08:00`, oder **Ruhetag**
    einschalten.
 3. **Frühstück ab** und **Mittagstisch von/bis**: erscheinen auf der Speisekarte und bei der Wochenkarte.
    Steht die Mittagszeit auch im Eintrag „Mittagstisch“ unter Speisen & Getränke, ändern Sie sie bitte dort ebenfalls.
 4. **Urlaub, Feiertage und Sonderöffnungszeiten** (hat immer Vorrang vor den regelmäßigen Zeiten):
-   - **Hinzufügen**, **Von** wählen; für mehrere Tage auch **Bis**.
+   - **Element hinzufügen**, **Von** wählen; für mehrere Tage auch **Bis**.
    - **Geschlossen** ist voreingestellt. Für geänderte Zeiten „Geschlossen“ ausschalten und die Uhrzeiten eintragen.
    - **Anlass** (optional) wird angezeigt, z. B. „Betriebsurlaub“.
    - Die Website zeigt diese Tage etwa drei Wochen vorher an und meldet am Tag selbst „Heute geschlossen“.
@@ -83,7 +88,7 @@ Bitte nur echte Angebote eintragen, die es im Café wirklich gibt.
 
 ## 5. Kontaktdaten ändern
 
-1. Links auf **Kontaktdaten** klicken.
+1. Auf **Kontaktdaten** klicken.
 2. **Telefonnummer**, **Straße und Hausnummer**, **Postleitzahl**, **Ort** ändern.
 3. **Öffentliche E-Mail-Adresse**: nur eintragen, wenn sie für alle sichtbar auf der Website stehen soll.
 4. **Veröffentlichen** klicken. Die Änderung erscheint überall auf der Website (Kopfzeile, Fußzeile, Kontaktseite).

@@ -1,3 +1,4 @@
+import { ThListIcon } from "@sanity/icons/ThList";
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { validatePrice } from "../validation";
 
@@ -18,6 +19,7 @@ export const standingOffersType = defineType({
           type: "object",
           name: "offerGroup",
           title: "Bereich",
+          icon: ThListIcon,
           fields: [
             defineField({
               name: "title",
@@ -71,10 +73,16 @@ export const standingOffersType = defineType({
                     }),
                   ],
                   preview: {
-                    select: { title: "title", detail: "detail", visible: "visible" },
-                    prepare: ({ title, detail, visible }) => ({
+                    select: { title: "title", detail: "detail", visible: "visible", price: "price" },
+                    prepare: ({ title, detail, visible, price }) => ({
                       title: title || "Neuer Eintrag",
-                      subtitle: `${visible === false ? "(ausgeblendet) " : ""}${detail ?? ""}`,
+                      subtitle: [
+                        visible === false ? "ausgeblendet" : null,
+                        typeof price === "number" ? `${price.toFixed(2).replace(".", ",")} €` : null,
+                        detail,
+                      ]
+                        .filter(Boolean)
+                        .join(", "),
                     }),
                   },
                 }),

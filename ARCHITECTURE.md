@@ -1,12 +1,14 @@
 # ARCHITECTURE.md — Café am Lindenplatz
 
 Implementation record, maintained by Claude Code. Requirements live in `PROJECT_BRIEF.md`, design direction in `DESIGN.md`.
-Last updated: 2026-11-04 (Milestone 3, Sanity CMS and contact backend).
+Last updated: 2026-11-04 (Milestone 3.2, branded admin).
 
 ## Stack
 - **Next.js 16.4.5** (App Router, Turbopack, Cache Components + Partial Prefetching), **React 19.3**, **TypeScript 5**, npm.
 - **Runtime dependencies:** `next`, `react`, `react-dom`, plus for the CMS only: `sanity` 6.22, `next-sanity` 13.4
-  (brings `@sanity/client`), `styled-components` 6 (Studio peer), `@sanity/locale-de-de` (German Studio UI).
+  (brings `@sanity/client`), `styled-components` 6 (Studio peer), `@sanity/locale-de-de` (German Studio UI),
+  `@sanity/themer` 0.10 (official Studio theming), `@sanity/ui` 4 and `@sanity/icons` 5 (already installed with
+  `sanity`, now declared because the Studio components import them).
 - **Dev:** ESLint 9 (`eslint-config-next`), `vitest` 4.1 (unit tests; 4.x because 5.x requires `@types/node` ≥ 22).
 - **Styling:** plain CSS, tokens in `app/globals.css`, one CSS Module per component/page. No UI kit.
 - `next.config.ts`: `agentRules: false` (keeps `next dev` out of the project-owned `AGENTS.md`), AVIF/WebP images,
@@ -33,7 +35,10 @@ lib/
 sanity/
   env.ts                     project ID / dataset / API version from env; isSanityConfigured
   schemaTypes/               weeklyMenu, standingOffers, openingHours, contactInfo (+ index with singleton IDs)
-  structure.ts               the four German Studio entries
+  structure.ts               Studio navigation: overview root pane + the four German areas
+  areas.ts                   the four areas (id, title, one-line description, icon)
+  theme.ts, locale.ts        Studio theme (@sanity/themer + café fonts) and German text fixes
+  components/                StudioOverview (root pane), StudioIcon (logo as workspace icon)
   validation.ts              pure validation rules used by the schemas (unit-tested)
   lib/client.ts, queries.ts, mappers.ts   read-only client, GROQ, document → content-type mapping
   seed/initial-content.ndjson   controlled initial import (verified legacy facts, no weekly menu)
@@ -77,9 +82,30 @@ tests/                       vitest suites (network blocked in setup.ts)
   with Cache Components and unnecessary: the route is prerendered and the Studio loads its data in the browser.
 - The `(studio)` route group has no site CSS or chrome; the `(site)` group never loads Studio code. Measured on the
   production build: public pages ≈ 580 KB uncompressed JS with 0 Sanity chunks; `/admin` ≈ 6.2 MB.
-- **Studio structure:** Wochenkarte (list, newest first), Speisen & Getränke, Öffnungszeiten & Urlaub, Kontaktdaten.
-  Singletons have fixed IDs, cannot be created twice, duplicated or deleted (document actions limited to publish,
-  discard, restore). German UI via `@sanity/locale-de-de`; no Vision/query tool.
+- **Studio structure:** root pane = overview (`sanity/components/StudioOverview.tsx`): café logo, the four areas with
+  a one-line explanation each (`sanity/areas.ts`), and a read-only status line for the weekly menu (published week for
+  today and the next published one, Berlin date). Each area is a `ChildLink`, so it opens as the next pane like a normal
+  list item: Wochenkarte (list, newest first), Speisen & Getränke, Öffnungszeiten & Urlaub, Kontaktdaten. URLs stay
+  `/admin/structure/<id>` with the same document IDs. Singletons have fixed IDs, cannot be created twice, duplicated or
+  deleted (document actions limited to publish, discard, restore). German UI via `@sanity/locale-de-de`; no
+  Vision/query tool.
+- **Branded admin (Milestone 3.2), documented APIs only, no CSS overrides of Sanity internals:**
+  - Theme: `sanity/theme.ts`, `buildTheme` from the official `@sanity/themer` (Studio 6, React 19). Light: accent
+    `#905038`, text `#312820`, background `#FFFCF8`; dark: espresso ground with a lighter terracotta (contrast 95 so
+    surfaces stay neutral). Fonts swapped on the built theme: DM Sans for text/labels, Newsreader for headings (CSS
+    variables from `app/fonts.ts`, self-hosted). Radii `[0,1,2,3,5,8,16]`, focus rings 2px. Both schemes are themed;
+    the Studio's own appearance switch still works. Measured AA contrast: muted text 6.3–7.6:1 (light), 5.5–10.5:1 (dark).
+  - Workspace icon: the unaltered café logo on its paper ground (`StudioIcon.tsx`), shown in the navbar and login card.
+  - Turned off (UI only, no data or permission change): Releases, scheduled drafts, scheduled publishing, tasks and
+    field comments (`sanity.config.ts`). Mostly paid-plan features that only added menus and upgrade prompts.
+  - German text fixes via `i18n.bundles` (`sanity/locale.ts`): "Neu: Wochenkarte" instead of "Neues Wochenkarte",
+    and a translation for the untranslated "Show all {{count}} items".
+  - Schema presentation only (stored data and IDs unchanged): date inputs show `DD.MM.YYYY` (the `dddd`/`MMMM` tokens
+    rendered English weekday names); Wochenkarte dates side by side (fieldset, 2 columns); dish fields ordered name,
+    price, description; each day's list row shows its dish names; weekday hours as "Ruhetag" toggle with both times in a
+    row below; offer rows show price and "ausgeblendet"; contact address grouped as "Anschrift".
+  - Still Sanity-branded: the login/provider screen ("Choose login provider", Sanity wordmark), account menu, help
+    menu and some untranslated or generic labels such as "Element hinzufügen". Not white-labelled; not worth fragile workarounds.
 - **This is navigation, not access control.** On Sanity Free every member who can publish is effectively an
   administrator (can see project settings, invite members, delete documents via the API). Mitigations: one personal
   account per person, strong passwords + 2FA on the login provider, no shared logins, regular dataset exports (below).

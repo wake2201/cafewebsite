@@ -9,6 +9,7 @@ export const contactInfoType = defineType({
   name: "contactInfo",
   title: "Kontaktdaten",
   type: "document",
+  fieldsets: [{ name: "address", title: "Anschrift", options: { collapsible: false } }],
   fields: [
     defineField({
       name: "phone",
@@ -35,12 +36,14 @@ export const contactInfoType = defineType({
       name: "street",
       title: "Straße und Hausnummer",
       type: "string",
+      fieldset: "address",
       validation: (rule) => rule.required().error("Bitte Straße und Hausnummer eintragen.").max(80),
     }),
     defineField({
       name: "postalCode",
       title: "Postleitzahl",
       type: "string",
+      fieldset: "address",
       validation: (rule) =>
         rule.required().regex(/^\d{5}$/, { name: "Postleitzahl" }).error("Bitte eine fünfstellige Postleitzahl eintragen."),
     }),
@@ -48,6 +51,7 @@ export const contactInfoType = defineType({
       name: "city",
       title: "Ort",
       type: "string",
+      fieldset: "address",
       validation: (rule) => rule.required().error("Bitte den Ort eintragen.").max(60),
     }),
   ],

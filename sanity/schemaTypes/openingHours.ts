@@ -10,13 +10,16 @@ function weekdayField(name: string, title: string) {
     title,
     type: "object",
     fieldset: "regular",
-    options: { columns: 3 },
+    // "Ruhetag" across the full width, the two times side by side below it (also on phones).
+    // The fieldset only groups the inputs; the stored object keeps the same fields.
+    fieldsets: [{ name: "times", title: "Zeiten", options: { columns: 2 } }],
     fields: [
       defineField({ name: "closed", title: "Ruhetag", type: "boolean", initialValue: false }),
       defineField({
         name: "open",
         title: "Öffnet um",
         type: "string",
+        fieldset: "times",
         placeholder: "08:00",
         hidden: ({ parent }) => Boolean((parent as DayValue | undefined)?.closed),
       }),
@@ -24,6 +27,7 @@ function weekdayField(name: string, title: string) {
         name: "close",
         title: "Schließt um",
         type: "string",
+        fieldset: "times",
         placeholder: "17:00",
         hidden: ({ parent }) => Boolean((parent as DayValue | undefined)?.closed),
       }),
@@ -101,14 +105,14 @@ export const openingHoursType = defineType({
               name: "from",
               title: "Von",
               type: "date",
-              options: { dateFormat: "dddd, D. MMMM YYYY" },
+              options: { dateFormat: "DD.MM.YYYY" },
               validation: (rule) => rule.required().error("Bitte das Anfangsdatum wählen."),
             }),
             defineField({
               name: "to",
               title: "Bis (für einen einzelnen Tag leer lassen)",
               type: "date",
-              options: { dateFormat: "dddd, D. MMMM YYYY" },
+              options: { dateFormat: "DD.MM.YYYY" },
               validation: (rule) =>
                 rule.custom((to: string | undefined, context) =>
                   validateDateOrder((context.parent as { from?: string } | undefined)?.from, to),
@@ -159,11 +163,12 @@ export const openingHoursType = defineType({
       description: "Kurzer Hinweis, z. B. zu Urlaub oder geänderten Zeiten. Erscheint bei den Öffnungszeiten.",
       fields: [
         defineField({ name: "text", title: "Text", type: "text", rows: 2, validation: (rule) => rule.max(280) }),
-        defineField({ name: "showFrom", title: "Anzeigen ab (optional)", type: "date" }),
+        defineField({ name: "showFrom", title: "Anzeigen ab (optional)", type: "date", options: { dateFormat: "DD.MM.YYYY" } }),
         defineField({
           name: "showUntil",
           title: "Anzeigen bis (optional)",
           type: "date",
+          options: { dateFormat: "DD.MM.YYYY" },
           validation: (rule) =>
             rule.custom((to: string | undefined, context) =>
               validateDateOrder((context.parent as { showFrom?: string } | undefined)?.showFrom, to),
