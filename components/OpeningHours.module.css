@@ -1,0 +1,35 @@
+.hours {
+  --oh-rule: var(--color-border);
+  --oh-mark: var(--color-accent);
+}
+
+.hours[data-tone="dark"] {
+  --oh-rule: rgba(245, 240, 232, 0.22);
+  --oh-mark: #f0d2be;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding-block: 0.4rem;
+  border-bottom: 1px solid var(--oh-rule);
+}
+
+.time {
+  font-family: var(--font-serif-stack);
+  font-style: italic;
+  font-size: var(--step-1);
+  font-variant-numeric: lining-nums;
+  white-space: nowrap;
+}
+
+.today {
+  font-weight: 600;
+}
+
+.row[data-today] dt,
+.row[data-today] .time {
+  color: var(--oh-mark);
+}

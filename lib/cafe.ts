@@ -11,9 +11,9 @@
 
 export const cafe = {
   name: "Café am Lindenplatz",
-  owner: "Kerstin Leithold",
+  owner: "Kerstin Leithold", // non-breaking space keeps the name on one line
   address: {
-    street: "Röntgenstraße 1",
+    street: "Röntgenstraße 1", // non-breaking: never split street and number
     postalCode: "06712",
     city: "Zeitz",
     region: "Sachsen-Anhalt",
@@ -56,12 +56,12 @@ export const openingHours: Record<Weekday, DayHours> = {
 };
 
 /** Compact rows for display, in the same grouping the café uses on its own poster. */
-export const openingHoursSummary = [
-  { days: "Montag, Dienstag", hours: "08:00 – 17:00 Uhr" },
-  { days: "Mittwoch", hours: "Ruhetag" },
-  { days: "Donnerstag, Freitag", hours: "08:00 – 17:00 Uhr" },
-  { days: "Samstag, Sonntag", hours: "14:00 – 17:00 Uhr" },
-] as const;
+export const openingHoursSummary: { days: string; weekdays: Weekday[]; hours: string }[] = [
+  { days: "Montag, Dienstag", weekdays: [1, 2], hours: "08:00 – 17:00 Uhr" },
+  { days: "Mittwoch", weekdays: [3], hours: "Ruhetag" },
+  { days: "Donnerstag, Freitag", weekdays: [4, 5], hours: "08:00 – 17:00 Uhr" },
+  { days: "Samstag, Sonntag", weekdays: [6, 0], hours: "14:00 – 17:00 Uhr" },
+];
 
 /** The next weekday after `from` with regular opening hours (weekly pattern only, no holidays yet). */
 export function nextOpenDay(from: Weekday): { weekday: Weekday; hours: NonNullable<DayHours> } {

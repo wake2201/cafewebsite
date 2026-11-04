@@ -197,8 +197,16 @@ a:hover {
     color var(--duration) var(--ease), transform 120ms var(--ease);
 }
 
-.button:active {
+.button:active:not(:disabled) {
   transform: translateY(1px);
+}
+
+.button:disabled,
+.button:disabled:hover {
+  background: #e9e1d6;
+  border-color: var(--color-border);
+  color: var(--color-muted);
+  cursor: not-allowed;
 }
 
 .button:hover {

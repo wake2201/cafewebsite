@@ -1,23 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { OpeningHours } from "@/components/OpeningHours";
 import { TodayPanel } from "@/components/TodayPanel";
 import { WeeklyMenu } from "@/components/WeeklyMenu";
-import { cafe, openingHoursSummary } from "@/lib/cafe";
+import { standingOffers as offers } from "@/data/standing-offers";
+import { cafe } from "@/lib/cafe";
 import gastraum from "@/public/images/cafe/gastraum-mit-wandlogo.jpg";
 import festtafel from "@/public/images/feiern/festtafel-an-der-fensterfront.jpg";
 import kaffeetafel from "@/public/images/feiern/kaffeetafel-am-fenster.jpg";
 import styles from "./page.module.css";
-
-// Offer groups exactly as listed on the legacy homepage (see CONTENT_INVENTORY.md).
-// `when` carries the time cue in the italic menu-card voice; omitted where the source gives none.
-const offers: { title: string; detail: string; when?: string }[] = [
-  { title: "Frühstück", detail: "nach Angebot", when: `ab ${cafe.breakfastFrom} Uhr` },
-  { title: "Kaffee und Tee", detail: "verschiedene Kaffee- und Teesorten" },
-  { title: "Mittagstisch", detail: "Speisen im wöchentlichen Wechsel", when: `${cafe.lunch.from} – ${cafe.lunch.to} Uhr` },
-  { title: "Hausgebackener Kuchen", detail: "aus eigener Herstellung" },
-  { title: "Kuchenplatten und Canapés", detail: "auf Bestellung" },
-  { title: "Zum Mitnehmen", detail: "auch zum Abholen nach Vorbestellung" },
-];
 
 export default function HomePage() {
   return (
@@ -97,6 +88,7 @@ export default function HomePage() {
             <h2 id="feiern" className={styles.sectionTitle}>
               Feiern im Café
             </h2>
+            {/* Party size comes from an older poster; awaiting owner confirmation (CONTENT_INVENTORY.md §6). */}
             <p>
               Festlichkeiten bis {cafe.maxPartySize} Personen sind bei uns möglich. Kuchenplatten und
               Canapés bereiten wir auf Bestellung vor.
@@ -126,14 +118,7 @@ export default function HomePage() {
           </h2>
           <div className={styles.visitBlock}>
             <h3 className={styles.visitLabel}>Öffnungszeiten</h3>
-            <dl className={styles.hours}>
-              {openingHoursSummary.map((row) => (
-                <div key={row.days}>
-                  <dt>{row.days}</dt>
-                  <dd>{row.hours}</dd>
-                </div>
-              ))}
-            </dl>
+            <OpeningHours tone="dark" />
           </div>
           <div className={styles.visitBlock}>
             <h3 className={styles.visitLabel}>Adresse</h3>

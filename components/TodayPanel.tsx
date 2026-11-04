@@ -1,6 +1,6 @@
 import { cacheLife } from "next/cache";
 import { berlinToday, cafe, nextOpenDay, openingHours, weekdayNames } from "@/lib/cafe";
-import { formatPrice, getActiveWeeklyMenu } from "@/lib/weekly-menu";
+import { formatPrice, getActiveWeeklyMenu, getWeeklyMenus } from "@/lib/weekly-menu";
 import styles from "./TodayPanel.module.css";
 
 /**
@@ -14,8 +14,10 @@ export async function TodayPanel() {
 
   const today = berlinToday();
   const hours = openingHours[today.weekday];
-  const menuDay = getActiveWeeklyMenu(today.isoDate)?.days.find((day) => day.date === today.isoDate);
-  const dish = menuDay && !menuDay.closed ? menuDay.dishes[0] : undefined;
+  const menuDay = getActiveWeeklyMenu(await getWeeklyMenus(), today.isoDate)?.days.find(
+    (day) => day.date === today.isoDate,
+  );
+  const dishes = menuDay && !menuDay.closed ? menuDay.dishes : [];
   const next = hours ? null : nextOpenDay(today.weekday);
 
   return (
@@ -33,12 +35,20 @@ export async function TodayPanel() {
           <span className={styles.time}>ab {next!.hours.open} Uhr</span>
         </p>
       )}
-      {dish ? (
+      {dishes.length > 0 ? (
         <p className={styles.line}>
           Mittagstisch <span className={styles.time}>{cafe.lunch.from} – {cafe.lunch.to} Uhr</span>
-          <span className={styles.dish}>
-            {dish.name} <span className="tabular">{formatPrice(dish.priceEur)}</span>
-          </span>
+          {dishes.map((dish) => (
+            <span key={dish.name} className={styles.dish}>
+              {dish.name}
+              {dish.priceEur !== undefined ? (
+                <>
+                  {" "}
+                  <span className="tabular">{formatPrice(dish.priceEur)}</span>
+                </>
+              ) : null}
+            </span>
+          ))}
         </p>
       ) : null}
     </section>

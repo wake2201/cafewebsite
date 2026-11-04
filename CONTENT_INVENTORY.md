@@ -113,3 +113,18 @@ Note: `cafe_02.jpg` shows a chalkboard "Hausgemachter Kartoffelsalat mit Bockwur
 6. "Festlichkeiten bis 30 Personen" — still offered? only on an older poster image.
 7. Legacy Datenschutzerklärung mentions "Cafe vom Lindenplatz" and cookies/tracking — not reused; new legal texts required.
 8. "Diverse Speisen im wöchentlichen Wechsel" vs. Mittagstisch — treated as the same weekly lunch offer.
+
+## 7. Where migrated content is used (Milestone 2)
+- **Offer categories (§2, items 1 to 7):** homepage board and Speisekarte "Immer bei uns", grouped as Am Morgen und zu Mittag,
+  Kaffee und Kuchen, Auf Bestellung. The grouping is editorial; items and wording are unchanged. No item lists or prices added.
+- **Weekly menu (§3):** Speisekarte and homepage, with the validity check; Heute panel on the homepage.
+- **Lunch hours, breakfast time, takeaway and pre-order note, allergen note:** Speisekarte masthead, menu notes, pre-order band.
+- **Address, owner, phone, opening hours:** Kontakt page, footer, homepage visit band.
+- **Legacy contact form fields** (name, e-mail, subject, message, privacy acknowledgement): Kontakt form layout; subject now optional.
+- **Tagline "das freundliche Team":** Über uns sign-off.
+- **"Festlichkeiten bis 30 Personen" (§6.6):** still only on the homepage as before, marked in code as awaiting confirmation.
+  Deliberately not repeated on Über uns or Kontakt.
+- **Photos:** homepage (gastraum-mit-wandlogo, festtafel-an-der-fensterfront, kaffeetafel-am-fenster); Speisekarte
+  (theke-mit-kuchen, bottom-anchored crop so the historical chalkboard price is out of frame); Über uns (gastraum-und-tresen,
+  theke-kaffeestation as a left-anchored square crop that excludes the chalkboard, kaffeetafel-vor-wandlogo, festtafel-laengs).
+  Not used: the three dish photos (historical dishes), kaffeetafel-gedeckt (near-duplicate), tresen-selbstbedienung.

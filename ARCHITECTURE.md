@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — Café am Lindenplatz
 
 Implementation record, maintained by Claude Code. Requirements live in `PROJECT_BRIEF.md`, design direction in `DESIGN.md`.
-Last updated: 2026-11-04 (Milestone 1.5, art-direction refinement).
+Last updated: 2026-11-04 (Milestone 2, public pages).
 
 ## Stack
 - **Next.js 16.4.5** (App Router, Turbopack), **React 19.3**, **TypeScript 5**, npm. Scaffolded with `create-next-app@16.4.5`
@@ -15,33 +15,57 @@ Last updated: 2026-11-04 (Milestone 1.5, art-direction refinement).
 app/
   layout.tsx            root layout: fonts, skip link, header, footer, metadata (lang="de", robots noindex pre-launch)
   page.tsx (+ .module.css)   homepage
-  speisekarte/ ueber-uns/ kontakt/ impressum/ datenschutz/   minimal stubs (see below)
+  speisekarte/ ueber-uns/ kontakt/   full pages (M2), each with its own page.module.css
+  impressum/ datenschutz/            clearly marked stubs until the legal milestone
   not-found.tsx
   fonts.ts, fonts/      self-hosted woff2 + OFL licence files
   icon.png, apple-icon.png
-components/             SiteHeader, NavLinks (only client component), SiteFooter, WeeklyMenu, TodayPanel, PageStub, navigation.ts
+components/             SiteHeader, NavLinks*, SiteFooter, WeeklyMenu (loader) + WeeklyMenuView (pure view), TodayPanel,
+                        OpeningHours, ContactForm*, PageStub, navigation.ts        (* = client components)
+data/                   static business data, replaced by Sanity in M3
+  weekly-menus.ts       list of dated weekly menus (current, future and past weeks)
+  standing-offers.ts    standing offer categories from the legacy site, flat and grouped
 lib/
-  cafe.ts               business facts, opening hours, Europe/Berlin date helper  ← single source of truth until Sanity
-  weekly-menu.ts        dated weekly plan + validity check + formatters
+  cafe.ts               business facts, opening hours, Europe/Berlin date helpers  ← fixed facts until Sanity
+  menu-types.ts         content contract: WeeklyMenu, WeeklyMenuDay, Dish, WeeklyMenuSelection, StandingOffer(Group)
+  weekly-menu.ts        getWeeklyMenus() (data access, becomes a Sanity query), selectWeeklyMenu(), formatters
 public/images/{brand,cafe,feiern,speisen}/   curated, descriptively named legacy assets (provenance: CONTENT_INVENTORY.md)
 assets/originals/       unmodified source files that are not served directly
 ```
 
 ## Routes
-| Route | Status (M1) |
-|---|---|
-| `/` | Homepage v1 — complete for this milestone |
-| `/speisekarte` | **Stub**: honest notice + live `WeeklyMenu` component. Full page in M2 |
-| `/ueber-uns` | **Stub**: notice + one factual sentence |
-| `/kontakt` | **Stub**: notice + address, phone, hours, external route link. Form in M4 |
-| `/impressum` | **Stub**: marked "Entwurf – nicht freigegeben", provider facts only |
-| `/datenschutz` | **Stub**: "in Vorbereitung" |
-Navigation therefore has no dead links; every stub states that it is unfinished.
+| Route | Status (M2) | Composition |
+|---|---|---|
+| `/` | Complete (M1.5) | Cover hero + Heute panel, menu card, offer board, photo collage, dark visit band |
+| `/speisekarte` | Complete | Typographic masthead with serving times, menu card, standing offers grouped under one wide counter photo, pre-order band |
+| `/ueber-uns` | Complete (short by design) | Factual intro, photo "Rundgang", filmstrip of laid tables, sign-off with the café's own tagline |
+| `/kontakt` | Complete (form not sending) | Phone number as typographic lead, address/hours/route column, contact form |
+| `/impressum` | Stub | Marked as unapproved draft, provider facts only |
+| `/datenschutz` | Stub | "In Vorbereitung" |
+
+No navigation link is dead; the two legal stubs say they are unfinished.
+
+## Content boundaries
+| Kind | Lives in | Editable later via |
+|---|---|---|
+| Weekly menus | `data/weekly-menus.ts` | Sanity (M3) |
+| Standing offers | `data/standing-offers.ts` | Sanity (M3), only with real item data from the café |
+| Opening hours, phone, address | `lib/cafe.ts` | Sanity (M3), plus closure/holiday notices |
+| Editorial copy, photos, logo, layout, legal texts | page files, `public/images` | stays in code |
+| Contact messages | not stored anywhere | M3 server action sends e-mail only |
+
+## Weekly menu model
+- `WeeklyMenu { validFrom, validTo, days[], notes[] }`. A day has `date`, optional `closed`, optional `note`, and any number
+  of dishes; a dish has `name`, optional `priceEur`, optional `note`. Weeks may list fewer or more than five days.
+- `selectWeeklyMenu(menus, today)` returns `current` (window contains today), else `upcoming` (earliest future week, shown
+  with a visible "Vorschau" label and no "heute" marker), else `none` (fallback text naming when the last week ended).
+  Expired weeks are never returned. Checked with a date-case table and with a rendered build using an expired week (M2).
+- `WeeklyMenuView` is a pure component that takes a selection, so the Sanity switch only replaces `getWeeklyMenus()`.
 
 ## Rendering and time-sensitive data
 - Server Components everywhere; `NavLinks` is a client component only for `aria-current` (links work without JS).
-- With Cache Components, `new Date()` must be inside `"use cache"` or behind `io()`. `WeeklyMenu` and `TodayPanel` are
-  `"use cache"` components with short `cacheLife` (revalidate 15 min / 10 min, expire 1 h), so pages stay static/prerendered
+- With Cache Components, `new Date()` must be inside `"use cache"` or behind `io()`. `WeeklyMenu`, `TodayPanel` and
+  `OpeningHours` are `"use cache"` components with short `cacheLife` (revalidate 15 min / 10 min, expire 1 h), so pages stay static/prerendered
   but the date logic re-runs regularly — an expired weekly plan disappears without a rebuild.
 - All date logic uses **Europe/Berlin** (`berlinToday()`), independent of server time zone.
 
@@ -82,8 +106,12 @@ Navigation therefore has no dead links; every stub states that it is unfinished.
 - Simplified Studio structure is a UX convenience only; it is **not** an authorisation boundary on Sanity Free.
 - Logo, photos, editorial copy, layout and legal texts stay in the repository.
 
-### Contact form (M4)
-- Server Action (or Route Handler) with server-side validation (e.g. zod), honeypot + rate limiting, privacy-acknowledgement
+### Contact form (M2 frontend done, sending later)
+- M2 state: `components/ContactForm.tsx` renders labelled fields (`name`, `email`, optional `subject`, `message`, `privacy`),
+  validates on blur with German messages (`aria-invalid`, `aria-describedby`, polite live region), and has no action and a
+  disabled submit button in the server HTML (`SUBMISSION_ENABLED = false`), plus a visible notice with the phone number.
+  Nothing is sent or stored; `onSubmit` also calls `preventDefault()` so no data can reach a URL.
+- Next: Server Action (or Route Handler) with server-side validation (e.g. zod), honeypot + rate limiting, privacy-acknowledgement
   checkbox, accessible error/success states, progressive enhancement (works without JS).
 - Delivery through a transactional e-mail provider (to be chosen; EU data processing preferred) using env-var credentials,
   verified sender domain, `Reply-To` = visitor. No message database. No real sends until recipient + provider are approved.
@@ -91,5 +119,5 @@ Navigation therefore has no dead links; every stub states that it is unfinished.
 ## Deferred decisions / open items
 - JSON-LD `CafeOrCoffeeShop` structured data and `metadataBase`/Open Graph image: deferred until facts and domain are confirmed (M6).
 - `robots: noindex` is set globally on purpose; flip at approved go-live (M7).
-- Holiday/closure notices: `TodayHours` currently knows only the weekly pattern; closures arrive with Sanity (M3).
+- Holiday/closure notices: `TodayPanel` and `OpeningHours` know only the weekly pattern; closures arrive with Sanity (M3).
 - Hosting (Vercel plan), domain, e-mail provider: pending owner decisions.

@@ -1,58 +1,49 @@
+import { weeklyMenus } from "@/data/weekly-menus";
+import type { WeeklyMenu, WeeklyMenuSelection } from "./menu-types";
+
 /**
- * Weekly lunch menu ("Speisekarteplan").
- *
- * Transcribed verbatim from https://www.cafeamlindenplatzzeitz.de/index.php/speisekarte
- * on 2026-11-04. The legacy table lists dishes in row order without weekday labels,
- * except "Mittwoch: Geschlossen!" in the third row; weekdays below are mapped from that
- * order (Mo, Di, Mi closed, Do, Fr). Confirm with the café.
- *
- * This static plan is replaced by Sanity data in Milestone 3. The validity window is
- * enforced at render time so an outdated week is never presented as current.
+ * Data access for weekly menus. Today it reads the static list in `data/weekly-menus.ts`;
+ * in Milestone 3 this becomes a Sanity query returning the same `WeeklyMenu[]` shape.
  */
+export async function getWeeklyMenus(): Promise<WeeklyMenu[]> {
+  return weeklyMenus;
+}
 
-export type WeeklyMenuDay = {
-  date: string; // ISO yyyy-mm-dd
-  weekday: string;
-  closed?: boolean;
-  dishes: { name: string; priceEur: number }[];
-};
+/**
+ * Chooses what to show for `isoDate` (Europe/Berlin calendar date):
+ * - "current": a menu whose validity window contains the date,
+ * - "upcoming": otherwise the earliest menu that starts later (shown as a preview, never as current),
+ * - "none": nothing valid; `lastValidTo` names the most recent expired week for context.
+ * Expired menus are never returned.
+ */
+export function selectWeeklyMenu(menus: WeeklyMenu[], isoDate: string): WeeklyMenuSelection {
+  const current = menus.find((m) => m.validFrom <= isoDate && isoDate <= m.validTo);
+  if (current) return { status: "current", menu: current };
 
-export type WeeklyMenu = {
-  validFrom: string; // ISO date, inclusive
-  validTo: string; // ISO date, inclusive
-  days: WeeklyMenuDay[];
-  notes: string[];
-};
+  const upcoming = menus
+    .filter((m) => m.validFrom > isoDate)
+    .sort((a, b) => a.validFrom.localeCompare(b.validFrom))[0];
+  if (upcoming) return { status: "upcoming", menu: upcoming };
 
-export const weeklyMenu: WeeklyMenu = {
-  validFrom: "2026-11-02",
-  validTo: "2026-11-06",
-  days: [
-    { date: "2026-11-02", weekday: "Montag", dishes: [{ name: "Weiße Bohnen Eintopf, Dessert", priceEur: 6.2 }] },
-    { date: "2026-11-03", weekday: "Dienstag", dishes: [{ name: "Sülze, Bratkartoffeln, Beilage", priceEur: 10.9 }] },
-    { date: "2026-11-04", weekday: "Mittwoch", closed: true, dishes: [] },
-    { date: "2026-11-05", weekday: "Donnerstag", dishes: [{ name: "Spaghetti Bolognese, Dessert", priceEur: 10.9 }] },
-    {
-      date: "2026-11-06",
-      weekday: "Freitag",
-      dishes: [{ name: "Geschnetzeltes nach Gyros Art, Reis, Beilage", priceEur: 13.9 }],
-    },
-  ],
-  notes: [
-    "Änderungen vorbehalten.",
-    "Speisen auch zum Mitnehmen sowie auf Vorbestellung.",
-    "Bei Fragen zu Allergenen und Zusatzstoffen wenden Sie sich bitte an unser Personal.",
-  ],
-};
+  const lastValidTo = menus
+    .filter((m) => m.validTo < isoDate)
+    .map((m) => m.validTo)
+    .sort()
+    .at(-1);
+  return { status: "none", lastValidTo };
+}
 
-/** Returns the menu only while `isoDate` lies inside its validity window. */
-export function getActiveWeeklyMenu(isoDate: string): WeeklyMenu | null {
-  return isoDate >= weeklyMenu.validFrom && isoDate <= weeklyMenu.validTo ? weeklyMenu : null;
+/** The current menu for `isoDate`, or null. */
+export function getActiveWeeklyMenu(menus: WeeklyMenu[], isoDate: string): WeeklyMenu | null {
+  const selection = selectWeeklyMenu(menus, isoDate);
+  return selection.status === "current" ? selection.menu : null;
 }
 
 const priceFormat = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
 export const formatPrice = (eur: number) => priceFormat.format(eur);
 
+const utcDate = (iso: string) => new Date(`${iso}T00:00:00Z`);
+const weekdayFormat = new Intl.DateTimeFormat("de-DE", { weekday: "long", timeZone: "UTC" });
 const dayMonth = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", timeZone: "UTC" });
 const dayMonthYear = new Intl.DateTimeFormat("de-DE", {
   day: "numeric",
@@ -61,9 +52,15 @@ const dayMonthYear = new Intl.DateTimeFormat("de-DE", {
   timeZone: "UTC",
 });
 
-/** "2. bis 6. November 2026" */
+/** "Montag" */
+export const formatWeekday = (iso: string) => weekdayFormat.format(utcDate(iso));
+
+/** "2. November" */
+export const formatDayMonth = (iso: string) => dayMonth.format(utcDate(iso));
+
+/** "2. bis 6. November 2026" style range (month repeated, as the source dates may span months). */
 export function formatRange(fromIso: string, toIso: string): string {
-  return `${dayMonth.format(new Date(fromIso))} bis ${dayMonthYear.format(new Date(toIso))}`;
+  return `${dayMonth.format(utcDate(fromIso))} bis ${dayMonthYear.format(utcDate(toIso))}`;
 }
 
 /** "2.11." */

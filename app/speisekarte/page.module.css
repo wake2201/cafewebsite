@@ -1,0 +1,230 @@
+/* Speisekarte: typographic masthead, the menu card, a grouped standing-offer list, a pre-order band. */
+
+.masthead {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-7) var(--space-7);
+}
+
+.title {
+  font-size: var(--step-5);
+  font-weight: 380;
+  line-height: 0.98;
+  letter-spacing: -0.022em;
+}
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.55;
+  max-width: 36ch;
+}
+
+.times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin-top: var(--space-2);
+}
+
+.times div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.times dt {
+  font-weight: 500;
+}
+
+.times dd {
+  font-family: var(--font-serif-stack);
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+@media (min-width: 64rem) {
+  .masthead {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-5);
+    row-gap: var(--space-5);
+    align-items: end;
+    padding-block: var(--space-8) var(--space-7);
+  }
+
+  .title {
+    grid-column: 1 / span 7;
+  }
+
+  .lede {
+    grid-column: 1 / span 6;
+  }
+
+  .times {
+    grid-column: 8 / span 5;
+    grid-row: 1 / span 2;
+    align-self: end;
+    flex-direction: column;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-text);
+  }
+
+  .times div {
+    justify-content: space-between;
+  }
+}
+
+/* ---------- Standing offers ---------- */
+
+.standing {
+  padding-block: var(--space-8);
+}
+
+.sectionTitle {
+  font-size: var(--step-3);
+  margin-bottom: var(--space-5);
+}
+
+.strip {
+  margin-inline: calc(var(--gutter) * -1);
+  /* 3:1 on every screen: with the bottom anchor this keeps the chalkboard (top right) out of frame. */
+  aspect-ratio: 3 / 1;
+  overflow: hidden;
+  background: var(--color-border);
+}
+
+.stripImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Bottom-anchored: keeps the historical chalkboard price (top right of the photo) out of frame. */
+  object-position: 50% 100%;
+}
+
+.groups {
+  display: grid;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+.groupTitle {
+  font-size: var(--step-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-text);
+}
+
+.offerList {
+  list-style: none;
+  padding: 0;
+}
+
+.offer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "title when"
+    "detail detail";
+  column-gap: var(--space-3);
+  align-items: baseline;
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.offerTitle {
+  grid-area: title;
+  font-weight: 500;
+}
+
+.offerWhen {
+  grid-area: when;
+  font-family: var(--font-serif-stack);
+  font-style: italic;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.offerDetail {
+  grid-area: detail;
+  color: var(--color-muted);
+}
+
+.askNote {
+  margin-top: var(--space-5);
+  color: var(--color-muted);
+  max-width: 50ch;
+}
+
+@media (min-width: 48rem) {
+  .strip {
+    margin-inline: 0;
+    border-radius: var(--radius);
+  }
+}
+
+@media (min-width: 56rem) {
+  .groups {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--space-6);
+  }
+}
+
+/* ---------- Pre-order band ---------- */
+
+.order {
+  padding-block: var(--space-7) var(--space-8);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.orderGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.orderTitle {
+  font-size: var(--step-3);
+}
+
+.orderText {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 40rem;
+}
+
+.orderText > p:first-child {
+  font-size: var(--step-1);
+  line-height: 1.55;
+}
+
+.orderActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+}
+
+.orderLink {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.orderLink:hover {
+  color: var(--color-accent-strong);
+}
+
+@media (min-width: 56rem) {
+  .orderGrid {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-5);
+    align-items: start;
+  }
+
+  .orderTitle {
+    grid-column: 1 / span 5;
+  }
+
+  .orderText {
+    grid-column: 7 / span 6;
+  }
+}
