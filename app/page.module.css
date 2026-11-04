@@ -1,58 +1,86 @@
+/*
+ * Homepage composition. Each section has its own layout on purpose:
+ * hero = cover (type over a wide photo), Wochenkarte = menu card, offers = text-only board,
+ * Feiern = asymmetric two-photo collage, visit = the one dark band.
+ */
+
 /* ---------- Hero ---------- */
 
 .hero {
-  padding-block: var(--space-6) var(--space-8);
+  padding-block: var(--space-6) var(--space-7);
 }
 
 .heroGrid {
   display: grid;
-  gap: var(--space-6);
-}
-
-.place {
-  color: var(--color-muted);
-  font-size: var(--step--1);
-  margin-bottom: var(--space-4);
+  gap: var(--space-5);
 }
 
 .heroTitle {
-  font-size: var(--step-4);
-  font-weight: 400;
-  line-height: 1.04;
-  max-width: 14ch;
+  font-size: var(--step-5);
+  font-weight: 380;
+  line-height: 0.98;
+  letter-spacing: -0.022em;
+  max-width: 13ch;
 }
 
 .lede {
-  margin-top: var(--space-5);
-  max-width: 38ch;
   font-size: var(--step-1);
   line-height: 1.55;
-}
-
-.today {
-  margin-top: var(--space-5);
-  padding-left: var(--space-4);
-  border-left: 2px solid var(--color-sage);
-}
-
-.today strong {
-  font-weight: 600;
+  max-width: 40ch;
 }
 
 .actions {
-  margin-top: var(--space-6);
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+  margin-top: var(--space-5);
 }
 
 .heroFigure {
+  margin-top: var(--space-3);
   margin-inline: calc(var(--gutter) * -1);
+}
+
+.heroFrame {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--color-border);
 }
 
 .heroImage {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  /* keep the painted wall logo in frame on narrow crops */
+  object-position: 36% 40%;
+}
+
+.caption {
+  margin-top: var(--space-2);
+  padding-inline: var(--gutter);
+  font-size: var(--step--1);
+  color: var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .heroTitle {
+    max-width: 16ch;
+  }
+
+  .heroFigure {
+    margin-inline: 0;
+  }
+
+  .heroFrame {
+    aspect-ratio: 2 / 1;
+    border-radius: var(--radius);
+  }
+
+  .heroImage {
+    object-position: 50% 32%;
+  }
+
+  .caption {
+    padding-inline: 0;
+    text-align: right;
+  }
 }
 
 @media (min-width: 64rem) {
@@ -61,146 +89,257 @@
   }
 
   .heroGrid {
-    grid-template-columns: 11fr 13fr;
-    gap: var(--space-7);
-    align-items: center;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-5);
+    row-gap: var(--space-6);
+    align-items: end;
+  }
+
+  .heroTitle {
+    grid-column: 1 / span 11;
+    max-width: none;
+  }
+
+  .heroIntro {
+    grid-column: 1 / span 6;
+  }
+
+  .heroToday {
+    grid-column: 8 / span 5;
   }
 
   .heroFigure {
-    margin-inline: 0 calc(var(--gutter) * -1);
-  }
-
-  .heroImage {
-    border-radius: var(--radius) 0 0 var(--radius);
+    grid-column: 1 / -1;
+    margin-top: var(--space-2);
   }
 }
 
-/* ---------- Shared section bits ---------- */
+/* One authored moment: the cover settles in on first paint. Content is visible by default. */
+@media (prefers-reduced-motion: no-preference) {
+  .heroTitle {
+    animation: rise 700ms var(--ease-out) both;
+  }
+
+  .heroIntro {
+    animation: rise 700ms 90ms var(--ease-out) both;
+  }
+
+  .heroToday {
+    animation: rise 700ms 160ms var(--ease-out) both;
+  }
+
+  .heroFrame {
+    animation: unveil 1000ms 120ms var(--ease-out) both;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+@keyframes unveil {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ---------- Shared ---------- */
 
 .sectionTitle {
   font-size: var(--step-3);
-  margin-bottom: var(--space-5);
 }
 
-.more {
-  margin-top: var(--space-6);
+.textLink {
+  color: var(--color-accent);
   font-weight: 500;
 }
 
-.more a {
-  color: var(--color-accent);
-}
-
-.more a:hover {
+.textLink:hover {
   color: var(--color-accent-strong);
 }
 
-.offersFigure img,
-.partyFigure img,
-.visitFigure img {
-  width: 100%;
-  border-radius: var(--radius);
-}
+/* ---------- Offer board (text only) ---------- */
 
-.offersFigure figcaption {
-  margin-top: var(--space-2);
-  font-size: var(--step--1);
-  color: var(--color-muted);
-}
-
-/* ---------- Offers ---------- */
-
-.offers {
+.board {
   padding-block: var(--space-8);
 }
 
-.offersGrid {
-  display: grid;
-  gap: var(--space-6);
+.boardHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-text);
 }
 
-.offerList {
-  display: grid;
-  border-top: 1px solid var(--color-border);
+.boardList {
+  list-style: none;
+  padding: 0;
 }
 
-.offer {
+.boardRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "title when"
+    "detail detail";
+  align-items: baseline;
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
   padding-block: var(--space-4);
   border-bottom: 1px solid var(--color-border);
 }
 
-.offer dt {
+.boardTitle {
+  grid-area: title;
   font-family: var(--font-serif-stack);
   font-size: var(--step-2);
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
-.offer dd {
-  margin-top: var(--space-1);
+.boardDetail {
+  grid-area: detail;
   color: var(--color-muted);
+  line-height: 1.4;
+}
+
+.boardWhen {
+  grid-area: when;
+  font-family: var(--font-serif-stack);
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--color-accent);
+  white-space: nowrap;
 }
 
 @media (min-width: 56rem) {
-  .offersGrid {
-    grid-template-columns: 5fr 6fr;
-    gap: var(--space-8);
-    align-items: start;
-  }
-
-  .offersFigure {
-    position: sticky;
-    top: var(--space-6);
-  }
-
-  .offerList {
-    grid-template-columns: 1fr 1fr;
+  .boardRow {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr) minmax(9rem, 2fr);
+    grid-template-areas: "title detail when";
     column-gap: var(--space-6);
+    padding-block: var(--space-5);
+  }
+
+  .boardTitle {
+    font-size: var(--step-3);
+  }
+
+  .boardWhen {
+    text-align: right;
   }
 }
 
-/* ---------- Party ---------- */
+/* ---------- Feiern: asymmetric two-photo collage ---------- */
 
 .party {
-  padding-block: var(--space-8);
-  background: #ebe4d8;
+  padding-block: var(--space-6) var(--space-8);
 }
 
 .partyGrid {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-5);
+}
+
+.partyMain img,
+.partyDetail img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+.partyMain {
+  margin-inline: calc(var(--gutter) * -1);
+}
+
+.partyMain img {
+  border-radius: 0;
 }
 
 .partyText {
   display: grid;
   gap: var(--space-4);
-  align-content: center;
   max-width: 34rem;
-}
-
-.partyText .sectionTitle {
-  margin-bottom: 0;
 }
 
 .partyText p {
   font-size: var(--step-1);
+  line-height: 1.55;
 }
 
-.partyText p:last-child {
-  margin-top: var(--space-3);
+.inlinePhone {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.partyDetail {
+  width: 62%;
+  justify-self: end;
 }
 
 @media (min-width: 56rem) {
   .partyGrid {
-    grid-template-columns: 5fr 6fr;
-    gap: var(--space-8);
-    align-items: center;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    column-gap: var(--space-5);
+    row-gap: var(--space-7);
+  }
+
+  .partyMain {
+    grid-column: 1 / span 7;
+    grid-row: 1 / span 2;
+    margin-inline: 0;
+  }
+
+  .partyMain img {
+    border-radius: var(--radius);
+  }
+
+  .partyText {
+    grid-column: 9 / span 4;
+    grid-row: 1;
+    align-self: end;
+  }
+
+  .partyDetail {
+    grid-column: 9 / span 3;
+    grid-row: 2;
+    width: auto;
+    justify-self: stretch;
   }
 }
 
-/* ---------- Visit ---------- */
+/* ---------- Visit: the one dark band ---------- */
 
 .visit {
-  padding-block: var(--space-8) 0;
+  --visit-text: #f5f0e8;
+  --visit-muted: #cbbfb1;
+  --visit-rule: rgba(245, 240, 232, 0.22);
+
+  padding-block: var(--space-8);
+  background: var(--color-text);
+  color: var(--visit-text);
+}
+
+.visit a {
+  color: var(--visit-text);
+  text-decoration-color: var(--visit-muted);
+}
+
+.visit a:hover {
+  color: #f0d2be;
+  text-decoration-color: currentColor;
+}
+
+.visit :focus-visible {
+  outline-color: var(--visit-text);
 }
 
 .visitGrid {
@@ -208,68 +347,83 @@
   gap: var(--space-6);
 }
 
-.visitDetails {
-  display: grid;
-  gap: var(--space-5);
+.visitTitle {
+  font-size: var(--step-4);
+  font-weight: 380;
 }
 
-.detailTitle {
+.visitLabel {
   font-family: var(--font-sans-stack);
   font-size: var(--step--1);
   font-weight: 600;
   letter-spacing: 0;
-  color: var(--color-muted);
-  margin-bottom: var(--space-2);
+  color: var(--visit-muted);
+  margin-bottom: var(--space-3);
 }
 
-.address {
-  font-style: normal;
-  margin-bottom: var(--space-2);
+.visitBlock {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
 }
 
 .hours div {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   gap: var(--space-4);
-  max-width: 24rem;
-  padding-block: 0.2rem;
-  border-bottom: 1px solid var(--color-border);
+  padding-block: 0.35rem;
+  border-bottom: 1px solid var(--visit-rule);
 }
 
 .hours dd {
-  color: var(--color-muted);
+  font-family: var(--font-serif-stack);
+  font-style: italic;
+  font-size: var(--step-1);
+  font-variant-numeric: lining-nums;
 }
 
-.phoneLink {
+.address {
+  font-style: normal;
+  line-height: 1.7;
+}
+
+.visitPhone {
   font-family: var(--font-serif-stack);
   font-size: var(--step-2);
   text-decoration: none;
+  white-space: nowrap;
 }
 
-.phoneLink:hover {
+.visitPhone:hover {
   text-decoration: underline;
 }
 
-.small {
-  margin-top: var(--space-1);
+.visitNote {
+  color: var(--visit-muted);
   font-size: var(--step--1);
-  color: var(--color-muted);
 }
 
 @media (min-width: 56rem) {
   .visitGrid {
-    grid-template-columns: 6fr 5fr;
-    gap: var(--space-8);
-    align-items: start;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-5);
+    row-gap: var(--space-7);
   }
 
-  .visitDetails {
-    grid-template-columns: 1fr 1fr;
-    column-gap: var(--space-6);
-  }
-
-  .visitDetails > div:nth-child(2) {
+  .visitTitle {
     grid-column: 1 / -1;
-    grid-row: 1;
+  }
+
+  .visitBlock:nth-of-type(1) {
+    grid-column: 1 / span 5;
+  }
+
+  .visitBlock:nth-of-type(2) {
+    grid-column: 7 / span 3;
+  }
+
+  .visitBlock:nth-of-type(3) {
+    grid-column: 10 / span 3;
   }
 }

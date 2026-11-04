@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — Café am Lindenplatz
 
 Implementation record, maintained by Claude Code. Requirements live in `PROJECT_BRIEF.md`, design direction in `DESIGN.md`.
-Last updated: 2026-11-04 (Milestone 1).
+Last updated: 2026-11-04 (Milestone 1.5, art-direction refinement).
 
 ## Stack
 - **Next.js 16.4.5** (App Router, Turbopack), **React 19.3**, **TypeScript 5**, npm. Scaffolded with `create-next-app@16.4.5`
@@ -19,7 +19,7 @@ app/
   not-found.tsx
   fonts.ts, fonts/      self-hosted woff2 + OFL licence files
   icon.png, apple-icon.png
-components/             SiteHeader, NavLinks (only client component), SiteFooter, WeeklyMenu, TodayHours, PageStub, navigation.ts
+components/             SiteHeader, NavLinks (only client component), SiteFooter, WeeklyMenu, TodayPanel, PageStub, navigation.ts
 lib/
   cafe.ts               business facts, opening hours, Europe/Berlin date helper  ← single source of truth until Sanity
   weekly-menu.ts        dated weekly plan + validity check + formatters
@@ -40,7 +40,7 @@ Navigation therefore has no dead links; every stub states that it is unfinished.
 
 ## Rendering and time-sensitive data
 - Server Components everywhere; `NavLinks` is a client component only for `aria-current` (links work without JS).
-- With Cache Components, `new Date()` must be inside `"use cache"` or behind `io()`. `WeeklyMenu` and `TodayHours` are
+- With Cache Components, `new Date()` must be inside `"use cache"` or behind `io()`. `WeeklyMenu` and `TodayPanel` are
   `"use cache"` components with short `cacheLife` (revalidate 15 min / 10 min, expire 1 h), so pages stay static/prerendered
   but the date logic re-runs regularly — an expired weekly plan disappears without a rebuild.
 - All date logic uses **Europe/Berlin** (`berlinToday()`), independent of server time zone.
@@ -51,6 +51,15 @@ Navigation therefore has no dead links; every stub states that it is unfinished.
   (includes umlauts, ß, €), via `next/font/local` — no request to Google at build or runtime. Licence: SIL OFL 1.1, files from
   `@fontsource-variable/*@5.3.0`, licence text in `app/fonts/OFL-*.txt`.
 - Signature element: the dated **Wochenkarte** set like a printed menu card with today's row highlighted.
+- Identity motif: italic Newsreader for every time cue (dates, hours, "Heute"), the menu-card voice repeated across sections.
+- Homepage composition (M1.5): each section has its own layout. Cover hero (two-line headline over the wall-logo photo at
+  native 1200 px, 2:1 crop desktop / 4:3 mobile, address as figcaption) with a `TodayPanel` (today's hours, today's dish
+  from the valid weekly plan, or next opening on Ruhetag); menu card; text-only offer board; asymmetric two-photo
+  collage for events; one dark espresso band for visit details. No eyebrows, no coloured side stripes, no card grids.
+- Motion (M1.5): one authored moment only, the hero entrance (headline/intro rise, photo unveiled via `clip-path`,
+  700–1000 ms, `cubic-bezier(0.16, 1, 0.3, 1)`), wrapped in `prefers-reduced-motion: no-preference` so content is static
+  and visible otherwise. Supporting feedback: nav underline grows on hover (`transform: scaleX`), button press offset,
+  colour transitions 180 ms. No scroll-triggered animation, no motion library.
 - Buttons: one solid primary, one outlined quiet variant (`.button`, `.button-quiet`); 48 px min touch height.
 - Accessibility basics: skip link, visible `:focus-visible` ring, `aria-current` on nav and today's menu row,
   semantic `dl`/`ol`/`address`, descriptive German alt texts, `prefers-reduced-motion` respected, no motion beyond hover colour.

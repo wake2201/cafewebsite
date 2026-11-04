@@ -1,0 +1,31 @@
+.panel {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-text);
+}
+
+.day {
+  font-family: var(--font-serif-stack);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--step-2);
+  color: var(--color-accent);
+  letter-spacing: 0;
+}
+
+.line {
+  line-height: 1.45;
+}
+
+.time {
+  font-family: var(--font-serif-stack);
+  font-style: italic;
+  font-size: 1.08em;
+  white-space: nowrap;
+}
+
+.dish {
+  display: block;
+  font-weight: 500;
+}

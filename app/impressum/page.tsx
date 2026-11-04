@@ -8,7 +8,7 @@ export default function ImpressumPage() {
   return (
     <PageStub
       title="Impressum"
-      notice="Entwurf – rechtlich noch nicht geprüft und nicht freigegeben. Die Angaben stammen von der bisherigen Website und werden vor Veröffentlichung mit dem Café abgestimmt."
+      notice="Entwurf, rechtlich noch nicht geprüft und nicht freigegeben. Die Angaben stammen von der bisherigen Website und werden vor Veröffentlichung mit dem Café abgestimmt."
     >
       <h2>Angaben zum Anbieter</h2>
       <address>

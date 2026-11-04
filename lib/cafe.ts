@@ -63,6 +63,16 @@ export const openingHoursSummary = [
   { days: "Samstag, Sonntag", hours: "14:00 – 17:00 Uhr" },
 ] as const;
 
+/** The next weekday after `from` with regular opening hours (weekly pattern only, no holidays yet). */
+export function nextOpenDay(from: Weekday): { weekday: Weekday; hours: NonNullable<DayHours> } {
+  for (let step = 1; step <= 7; step++) {
+    const weekday = ((from + step) % 7) as Weekday;
+    const hours = openingHours[weekday];
+    if (hours) return { weekday, hours };
+  }
+  throw new Error("openingHours has no open day");
+}
+
 /** Calendar date and weekday in the café's own time zone. */
 export function berlinToday(now: Date = new Date()): { isoDate: string; weekday: Weekday } {
   const parts = new Intl.DateTimeFormat("en-CA", {

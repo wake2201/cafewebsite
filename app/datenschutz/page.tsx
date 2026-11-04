@@ -7,7 +7,7 @@ export default function DatenschutzPage() {
   return (
     <PageStub
       title="Datenschutz"
-      notice="In Vorbereitung – die Datenschutzerklärung für die neue Website wird vor der Veröffentlichung erstellt und rechtlich geprüft."
+      notice="In Vorbereitung: Die Datenschutzerklärung für die neue Website wird vor der Veröffentlichung erstellt und rechtlich geprüft."
     />
   );
 }

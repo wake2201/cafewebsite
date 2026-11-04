@@ -50,7 +50,7 @@ export async function WeeklyMenu({ headingLevel: Heading = "h2", id = "wochenkar
                     {isToday ? <span className={styles.todayTag}>heute</span> : null}
                   </p>
                   {day.closed ? (
-                    <p className={styles.closed}>Ruhetag – geschlossen</p>
+                    <p className={styles.closed}>Ruhetag</p>
                   ) : (
                     day.dishes.map((dish) => (
                       <p key={dish.name} className={styles.dish}>

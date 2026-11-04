@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cafe, openingHoursSummary } from "@/lib/cafe";
+import { cafe } from "@/lib/cafe";
 import { legalNav, primaryNav } from "./navigation";
 import styles from "./SiteFooter.module.css";
 
@@ -16,18 +16,6 @@ export function SiteFooter() {
             <br />
             <a href={cafe.phone.href}>{cafe.phone.display}</a>
           </address>
-        </div>
-
-        <div>
-          <h2 className={styles.heading}>Öffnungszeiten</h2>
-          <dl className={styles.hours}>
-            {openingHoursSummary.map((row) => (
-              <div key={row.days}>
-                <dt>{row.days}</dt>
-                <dd className="tabular">{row.hours}</dd>
-              </div>
-            ))}
-          </dl>
         </div>
 
         <nav aria-label="Fußzeile">

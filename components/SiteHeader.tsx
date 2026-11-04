@@ -12,9 +12,9 @@ export function SiteHeader() {
         <Link href="/" className={styles.brand}>
           <Image
             src={logo}
-            alt={`${cafe.name}, Inhaberin ${cafe.owner} – zur Startseite`}
+            alt={`${cafe.name}, Inhaberin ${cafe.owner}, zur Startseite`}
             className={styles.logo}
-            sizes="(min-width: 48rem) 154px, 118px"
+            sizes="(min-width: 48rem) 176px, 132px"
             loading="eager"
           />
         </Link>
