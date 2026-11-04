@@ -1,0 +1,117 @@
+.header {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "brand phone"
+    "nav nav";
+  align-items: center;
+  column-gap: var(--space-5);
+  padding-block: var(--space-3) 0;
+}
+
+.brand {
+  grid-area: brand;
+  display: block;
+  width: 118px;
+}
+
+.logo {
+  width: 100%;
+  height: auto;
+}
+
+.phone {
+  grid-area: phone;
+  justify-self: end;
+  font-size: var(--step--1);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  padding-block: var(--space-3);
+}
+
+.phone:hover {
+  text-decoration: underline;
+}
+
+.nav {
+  grid-area: nav;
+  margin-top: var(--space-2);
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  border-top: 1px solid var(--color-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.navList {
+  display: flex;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* "Start" is redundant with the logo on small screens. */
+.navList li:first-child {
+  display: none;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  white-space: nowrap;
+  text-decoration: none;
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--color-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.navLink:hover {
+  color: var(--color-text);
+}
+
+.navLink[aria-current="page"] {
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent);
+}
+
+@media (min-width: 48rem) {
+  .inner {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "brand nav phone";
+    padding-block: var(--space-3);
+  }
+
+  .brand {
+    width: 154px;
+  }
+
+  .nav {
+    margin: 0;
+    padding: 0;
+    border-top: 0;
+    justify-self: center;
+  }
+
+  .navList {
+    gap: var(--space-6);
+  }
+
+  .navList li:first-child {
+    display: list-item;
+  }
+
+  .navLink {
+    font-size: var(--step-0);
+    margin-bottom: 0;
+  }
+}

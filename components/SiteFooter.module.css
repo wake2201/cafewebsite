@@ -1,0 +1,73 @@
+.footer {
+  margin-top: var(--space-8);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--step--1);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-7) var(--space-6);
+}
+
+.name {
+  font-family: var(--font-serif-stack);
+  font-size: var(--step-2);
+  line-height: 1.2;
+  margin-bottom: var(--space-3);
+}
+
+.address {
+  font-style: normal;
+  line-height: 1.7;
+}
+
+.heading {
+  font-family: var(--font-sans-stack);
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0;
+  margin-bottom: var(--space-3);
+}
+
+.hours div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: 0.15rem;
+  max-width: 22rem;
+}
+
+.hours dd {
+  color: var(--color-muted);
+}
+
+.links {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.links a {
+  display: inline-block;
+  padding-block: 0.3rem;
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.base {
+  padding-block: var(--space-4) var(--space-6);
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (min-width: 48rem) {
+  .grid {
+    grid-template-columns: 1.2fr 1.4fr 1fr;
+  }
+}

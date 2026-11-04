@@ -1,0 +1,33 @@
+.stub {
+  padding-block: var(--space-7) var(--space-6);
+}
+
+.title {
+  font-size: var(--step-4);
+  font-weight: 400;
+}
+
+.notice {
+  margin-top: var(--space-4);
+  max-width: 44rem;
+  padding: var(--space-3) var(--space-4);
+  border-left: 2px solid var(--color-sage);
+  background: var(--color-surface);
+  color: var(--color-muted);
+}
+
+.body {
+  margin-top: var(--space-6);
+  display: grid;
+  gap: var(--space-4);
+  max-width: 44rem;
+}
+
+.body h2 {
+  font-size: var(--step-2);
+  margin-top: var(--space-4);
+}
+
+.body address {
+  font-style: normal;
+}
