@@ -39,7 +39,8 @@
   grid-area: nav;
   margin-top: var(--space-2);
   margin-inline: calc(var(--gutter) * -1);
-  padding-inline: var(--gutter);
+  /* The links' own 0.5rem padding completes the gutter, so the first label still aligns with it. */
+  padding-inline: calc(var(--gutter) - var(--space-2));
   border-top: 1px solid var(--color-border);
   overflow-x: auto;
   scrollbar-width: none;
@@ -47,13 +48,14 @@
 
 /*
  * Each link carries 0.5rem of inner padding (larger hit area, and room for an inset focus ring that
- * the scrollable nav's overflow cannot clip); list gap and margin subtract it again, so the visible
- * spacing and alignment are unchanged.
+ * the scrollable phone nav cannot clip); the list gap and the nav's padding subtract it again, so the
+ * visible spacing and alignment are unchanged. No negative margins inside the scroll container: they
+ * made the nav scroll sideways when the last link was clicked.
  */
 .navList {
   display: flex;
   gap: calc(var(--space-5) - 2 * var(--space-2));
-  margin: 0 calc(var(--space-2) * -1);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -143,15 +145,18 @@
     width: 176px;
   }
 
+  /* Desktop: four links always fit, so the nav is not a scroll container. */
   .nav {
     margin: 0;
     padding: 0;
     border-top: 0;
     justify-self: center;
+    overflow: visible;
   }
 
   .navList {
     gap: calc(var(--space-6) - 2 * var(--space-2));
+    margin-inline: calc(var(--space-2) * -1);
   }
 
   .navList li:first-child {

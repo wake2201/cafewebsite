@@ -228,10 +228,19 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
   both drift extremes. The global reduced-motion rule in `globals.css` collapses any remaining durations.
 - **Interactions and reveals (Milestone 4.1):** shared vocabulary in `app/globals.css` (`.button`, `.text-link`,
   `.text-link-quiet`, `[data-reveal]`, `[data-reveal="photo"]`, `data-reveal-step`); nav underline in
-  `SiteHeader.module.css`. Scroll reveals use one client component, `components/RevealObserver.tsx` (mounted in
-  `SiteChrome`, about 40 lines, no dependency): in a layout effect it marks on-screen elements `data-revealed="instant"`,
-  observes the rest with an IntersectionObserver, then sets `<html data-reveal-ready>`, the only selector under which
-  CSS hides anything. Re-runs per pathname for client-side navigation. Native `animation-timeline: view()` was not used
+  `SiteHeader.module.css`. Route motion uses one client component, `components/RevealObserver.tsx` (mounted in
+  `SiteChrome`, no dependency), revised in Milestone 4.2:
+  - *Diagnosis:* on returning to `/`, Next.js renders the homepage again (fresh DOM), so its CSS intro restarted;
+    other routes are sometimes restored from a hidden copy instead (`display: none` while the effect runs, every
+    rect at top 0), which made reveal decisions inconsistent between link navigation and Back/Forward.
+  - *Intros:* `data-intro="<route>"` scopes a page's first-paint CSS entrance. When a route is left, its token is
+    added to `<html data-intro-seen>`; CSS rules switch that route's intro off. No timing dependency; a reload
+    (new document) plays intros again.
+  - *Reveals:* only elements positively placed below the fold get `data-revealed="wait"` (the one hidden state),
+    then `animate` on entry and `done` on `animationend`. A per-route index set in module memory marks earlier
+    reveals `done` on re-rendered pages; leaving a route clears `wait` and settles `animate`, so restored copies
+    neither hide content nor replay. Hidden route copies are skipped (`getClientRects()`), with a few frames' retry.
+  Native `animation-timeline: view()` was not used
   for these entrances: it scrubs with scroll position (DESIGN.md forbids scroll-tied opacity), cannot give a fixed
   400 to 650 ms entrance, and is not available in every target browser.
 - **GSAP evaluated and removed:** the interrupted Milestone 4 prototype (`gsap`, `@gsap/react`, ScrollTrigger, SplitText,

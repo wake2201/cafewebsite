@@ -71,6 +71,20 @@ opening-hour rows; none on Kontakt. Reveals hide nothing until a small client sc
 is running and has marked everything already on screen as revealed; no JavaScript, reduced motion or print means no
 hidden state.
 
+### Motion policy (Milestone 4.2)
+- **Once per route and document.** Page intros and scroll reveals play on the first visit of a route; returning by
+  link, Back or Forward shows the page at rest. A full reload is a new visit and plays them again.
+- **Homepage:** authored hero entrance (unchanged); section reveals for the weekly-menu preview, offer list, Feiern
+  photos and text, and the visit band.
+- **Speisekarte:** title and introduction rise on first paint (340 ms). Meal times, Wochenkarte, prices, weekdays and
+  the standing offers are static; the theke photo opens as a window, plus the "Immer bei uns" heading and pre-order band.
+- **Über uns:** title and introduction rise; the opening photograph opens from a slight inset (the page's one intro
+  photo moment). Rundgang keeps its scroll-linked settle; the Tafeln photos open in turn; the sign-off rises as one.
+  The Rundgang heading and Tafeln text no longer fade (generic, repeated).
+- **Kontakt:** only the title and introduction rise (340 ms). Phone, address, opening hours and form fields are never
+  animated; the form is usable from the first frame.
+- **Phones:** reveals travel 8 px in 420 ms without stagger, so text is readable sooner while scrolling.
+
 ## Image guidance
 - Review all legacy photos and select by narrative purpose: venue/arrival, baked cake, plated lunch, atmosphere, personal detail.
 - Preserve aspect ratios and avoid awkward cropping or excessive filtering; use responsive `next/image` with proper sizes, LCP priority when necessary.

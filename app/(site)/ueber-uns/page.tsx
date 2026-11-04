@@ -25,20 +25,20 @@ export default async function UeberUnsPage() {
   const contact = await getContactInfo();
   return (
     <>
-      <header className={`container ${styles.intro}`}>
+      <header className={`container ${styles.intro}`} data-intro="ueber-uns">
         <div className={styles.introText}>
-          <h1 className={styles.title}>Über uns</h1>
-          <p className={styles.lede}>
+          <h1 className={`${styles.title} intro-rise`}>Über uns</h1>
+          <p className={`${styles.lede} intro-rise`} data-intro-step="1">
             Das {cafe.name} liegt in der {contact.address.street} in {contact.address.city} und wird von Inhaberin{" "}
             {cafe.owner} geführt.
           </p>
-          <p>
+          <p className="intro-rise" data-intro-step="1">
             Bei uns gibt es Frühstück, einen Mittagstisch mit wöchentlich wechselnden Speisen, Kaffee, Tee und
             hausgebackenen Kuchen. Vieles davon auch zum Mitnehmen.
           </p>
         </div>
         {/* Shown whole at its native 16:9: no object-fit crop in the opening composition. */}
-        <figure className={styles.introFigure}>
+        <figure className={`${styles.introFigure} intro-window`}>
           <Image
             src={gastraum}
             alt="Heller Gastraum mit Holzboden, Tischen mit Blumen, dem Tresen und der Eingangstür im Hintergrund"
@@ -52,7 +52,7 @@ export default async function UeberUnsPage() {
 
       <section className={styles.tour} aria-labelledby="rundgang">
         <div className="container">
-          <h2 id="rundgang" className={styles.sectionTitle} data-reveal>
+          <h2 id="rundgang" className={styles.sectionTitle}>
             Ein Rundgang
           </h2>
           {/* Milestone 4: the long view down the counter replaces a near-duplicate of the opening photo.
@@ -88,7 +88,7 @@ export default async function UeberUnsPage() {
 
       <section className={styles.tables} aria-labelledby="tafeln">
         <div className={`container ${styles.tablesGrid}`}>
-          <div className={styles.tablesText} data-reveal>
+          <div className={styles.tablesText}>
             <h2 id="tafeln" className={styles.sectionTitle}>
               Gedeckte Tafeln
             </h2>
@@ -127,10 +127,10 @@ export default async function UeberUnsPage() {
       </section>
 
       <section className={styles.signoff} aria-label="Besuch">
-        <div className={`container ${styles.signoffInner}`}>
-          <p className={styles.signoffLine} data-reveal>Wir freuen uns auf Ihren Besuch.</p>
-          <p className={styles.signature} data-reveal data-reveal-step="1">Ihr {cafe.name}, das freundliche Team</p>
-          <p className={styles.links} data-reveal data-reveal-step="2">
+        <div className={`container ${styles.signoffInner}`} data-reveal>
+          <p className={styles.signoffLine}>Wir freuen uns auf Ihren Besuch.</p>
+          <p className={styles.signature}>Ihr {cafe.name}, das freundliche Team</p>
+          <p className={styles.links}>
             <Link href="/speisekarte" className="text-link">
               Zur Speisekarte
             </Link>

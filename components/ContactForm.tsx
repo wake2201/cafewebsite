@@ -210,7 +210,10 @@ export function ContactForm({ enabled, phone }: Props) {
         />
         <label htmlFor="kontakt-datenschutz">
           Ich bin einverstanden, dass meine Angaben zur Beantwortung meiner Anfrage verwendet werden. Mehr dazu im{" "}
-          <Link href="/datenschutz">Datenschutzhinweis</Link>.
+          <Link href="/datenschutz" className="text-link">
+            Datenschutzhinweis
+          </Link>
+          .
         </label>
         {error("privacy")}
       </div>
@@ -223,7 +226,9 @@ export function ContactForm({ enabled, phone }: Props) {
         ) : (
           <p id="formular-hinweis" className={styles.notice} role="note">
             Das Kontaktformular ist noch nicht freigeschaltet und versendet keine Nachrichten. Bitte rufen Sie uns an:{" "}
-            <a href={phone.href}>{phone.display}</a>
+            <a href={phone.href} className="text-link">
+              {phone.display}
+            </a>
           </p>
         )}
         <p
@@ -237,7 +242,9 @@ export function ContactForm({ enabled, phone }: Props) {
           {statusMessage ? (
             <>
               {" "}
-              <a href={phone.href}>{phone.display}</a>
+              <a href={phone.href} className="text-link">
+                {phone.display}
+              </a>
             </>
           ) : null}
         </p>

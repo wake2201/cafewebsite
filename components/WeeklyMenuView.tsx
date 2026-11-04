@@ -12,6 +12,8 @@ type Props = {
   id?: string;
   phone: ContactInfo["phone"];
   lunch?: TimeRange;
+  /** Scroll-entry reveal for the intro and the day list (homepage preview only). */
+  reveal?: boolean;
 };
 
 /**
@@ -25,6 +27,7 @@ export function WeeklyMenuView({
   id = "wochenkarte",
   phone,
   lunch,
+  reveal = false,
 }: Props) {
   const menu = selection.status === "none" ? null : selection.menu;
   const isPreview = selection.status === "upcoming";
@@ -32,7 +35,7 @@ export function WeeklyMenuView({
   return (
     <section className={styles.section} aria-labelledby={id}>
       <div className={`container ${styles.layout}`}>
-        <div className={styles.intro} data-reveal>
+        <div className={styles.intro} data-reveal={reveal || undefined}>
           <Heading id={id} className={styles.title}>
             Wochenkarte
           </Heading>
@@ -53,7 +56,7 @@ export function WeeklyMenuView({
 
         {menu ? (
           <>
-            <ol className={styles.days} data-reveal data-reveal-step="1">
+            <ol className={styles.days} data-reveal={reveal || undefined} data-reveal-step={reveal ? "1" : undefined}>
               {menu.days.map((day) => {
                 const isToday = !isPreview && day.date === todayIso;
                 return (
@@ -99,7 +102,7 @@ export function WeeklyMenuView({
             </ul>
           </>
         ) : (
-          <div className={styles.empty} data-reveal data-reveal-step="1">
+          <div className={styles.empty} data-reveal={reveal || undefined} data-reveal-step={reveal ? "1" : undefined}>
             <p>
               Für diese Woche ist hier noch keine Wochenkarte eingetragen
               {selection.status === "none" && selection.lastValidTo ? (

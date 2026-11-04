@@ -22,9 +22,9 @@ export default async function SpeisekartePage() {
   ]);
   return (
     <>
-      <header className={`container ${styles.masthead}`}>
-        <h1 className={styles.title}>Speisekarte</h1>
-        <p className={styles.lede}>
+      <header className={`container ${styles.masthead}`} data-intro="speisekarte">
+        <h1 className={`${styles.title} intro-rise`}>Speisekarte</h1>
+        <p className={`${styles.lede} intro-rise`} data-intro-step="1">
           Jede Woche eine neue Mittagskarte, dazu Frühstück, Kaffee, Tee und Kuchen aus eigener Herstellung.
         </p>
         {hours.breakfastFrom || hours.lunch ? (
@@ -61,7 +61,7 @@ export default async function SpeisekartePage() {
               className={styles.stripImage}
             />
           </figure>
-          <div className={styles.groups} data-reveal>
+          <div className={styles.groups}>
             {standingOfferGroups.map((group, index) => (
               <section key={group.title} className={styles.group} aria-labelledby={`angebot-${index}`}>
                 <h3 id={`angebot-${index}`} className={styles.groupTitle}>

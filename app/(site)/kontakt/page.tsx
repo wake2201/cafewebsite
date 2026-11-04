@@ -25,9 +25,11 @@ export default async function KontaktPage() {
   const deliveryEnabled = isDeliveryEnabled();
   return (
     <div className={`container ${styles.split}`}>
-      <div className={styles.info}>
-        <h1 className={styles.title}>Kontakt &amp; Anfahrt</h1>
-        <p className={styles.lede}>Für Vorbestellungen und kurzfristige Fragen rufen Sie uns am besten an.</p>
+      <div className={styles.info} data-intro="kontakt">
+        <h1 className={`${styles.title} intro-rise`}>Kontakt &amp; Anfahrt</h1>
+        <p className={`${styles.lede} intro-rise`} data-intro-step="1">
+          Für Vorbestellungen und kurzfristige Fragen rufen Sie uns am besten an.
+        </p>
 
         <p className={styles.phoneBlock}>
           <span className={styles.label}>Telefon</span>

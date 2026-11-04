@@ -17,7 +17,7 @@ export default async function HomePage() {
   const offers = groups.flatMap((group) => group.offers);
   return (
     <>
-      <section className={styles.hero} aria-labelledby="hero-title">
+      <section className={styles.hero} aria-labelledby="hero-title" data-intro="home">
         <div className={`container ${styles.heroGrid}`}>
           <h1 id="hero-title" className={styles.heroTitle}>
             Frühstück, Mittagstisch und hausgebackener Kuchen
@@ -54,7 +54,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <WeeklyMenu />
+      <WeeklyMenu reveal />
 
       <section className={styles.board} aria-labelledby="angebot">
         <div className="container">

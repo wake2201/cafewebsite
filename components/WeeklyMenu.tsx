@@ -4,13 +4,13 @@ import { getContactInfo, getOpeningHours, getWeeklyMenus } from "@/lib/content";
 import { selectWeeklyMenu } from "@/lib/weekly-menu";
 import { WeeklyMenuView } from "./WeeklyMenuView";
 
-type Props = { headingLevel?: "h2" | "h3"; id?: string };
+type Props = { headingLevel?: "h2" | "h3"; id?: string; reveal?: boolean };
 
 /**
  * Loads weekly menus and picks the one valid today (Europe/Berlin). Cached briefly so the
  * date check re-runs without a rebuild; an expired week is never shown as current.
  */
-export async function WeeklyMenu({ headingLevel, id }: Props) {
+export async function WeeklyMenu({ headingLevel, id, reveal = false }: Props) {
   "use cache";
   cacheLife("cms");
 
@@ -26,6 +26,7 @@ export async function WeeklyMenu({ headingLevel, id }: Props) {
       id={id}
       phone={contact.phone}
       lunch={hours.lunch}
+      reveal={reveal}
     />
   );
 }

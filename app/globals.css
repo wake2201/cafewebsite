@@ -180,13 +180,15 @@ a:hover {
 }
 
 /*
- * Interaction vocabulary (Milestone 4.1). Six effects, reused everywhere, nothing else:
+ * Interaction vocabulary (Milestones 4.1 and 4.2). Seven effects, reused everywhere, nothing else:
  *   1. button lift      .button            espresso to terracotta, 2px lift, presses flat
  *   2. nav underline    SiteHeader.module  draws in from the left, leaves to the right
  *   3. text-link ink    .text-link         a quiet rule under the text, inked in on hover/focus
- *   4. section rise     [data-reveal]      fade + 14px rise, once, when scrolled into view
+ *   4. section rise     [data-reveal]      fade + 14px rise, once per route, when scrolled into view
  *   5. photo window     [data-reveal=photo] the photo opens from a slight inset (echoes the hero)
  *   6. scroll depth     page CSS modules   existing Milestone 4 scroll-linked photo effects
+ *   7. page intro       [data-intro]       heading group on first paint; homepage hero in its module
+ * Intros and reveals play once per route and document (components/RevealObserver.tsx).
  * Hover-only movement sits behind (hover: hover) so touch screens never keep a stuck hover state.
  */
 
@@ -291,29 +293,39 @@ a:hover {
   background-position: 0 100%, 0 100%;
 }
 
-/* ---------- 4/5. Scroll reveals ---------- */
+/* Pressed: a brief dip that reads on the light pages and the dark homepage band alike. */
+.text-link:active {
+  opacity: 0.72;
+  transition-duration: 60ms;
+}
+
+/* ---------- 4/5. Scroll reveals (once per route and document) ---------- */
 /*
- * Content is visible by default. Only once the RevealObserver script is running does it mark
- * <html data-reveal-ready> and hide [data-reveal] elements that are still below the fold; elements already
- * on screen are marked revealed first, so nothing visible ever disappears. Without JavaScript, with
- * reduced motion, or in print, there is no hidden state at all. Each element reveals once.
+ * Content is visible by default. RevealObserver marks only elements it has placed below the fold as
+ * data-revealed="wait" (the one hidden state), then "animate" when they enter and "done" afterwards.
+ * Without JavaScript, with reduced motion or in print there is no hidden state at all.
  */
 @media (prefers-reduced-motion: no-preference) {
-  html[data-reveal-ready] [data-reveal]:not([data-revealed]) {
-    opacity: 0;
-    transform: translateY(14px);
+  [data-reveal] {
+    --reveal-offset: 14px;
+    --reveal-duration: 620ms;
   }
 
-  html[data-reveal-ready] [data-reveal="photo"]:not([data-revealed]) {
+  [data-reveal][data-revealed="wait"] {
+    opacity: 0;
+    transform: translateY(var(--reveal-offset));
+  }
+
+  [data-reveal="photo"][data-revealed="wait"] {
     transform: none;
     clip-path: inset(7% 5% round var(--radius));
   }
 
-  html[data-reveal-ready] [data-reveal][data-revealed="animate"] {
-    animation: reveal-rise 620ms var(--reveal-delay, 0ms) var(--ease-out) both;
+  [data-reveal][data-revealed="animate"] {
+    animation: reveal-rise var(--reveal-duration) var(--reveal-delay, 0ms) var(--ease-out) both;
   }
 
-  html[data-reveal-ready] [data-reveal="photo"][data-revealed="animate"] {
+  [data-reveal="photo"][data-revealed="animate"] {
     animation: reveal-window 900ms var(--reveal-delay, 0ms) var(--ease-out) both;
   }
 
@@ -329,12 +341,24 @@ a:hover {
   [data-reveal-step="3"] {
     --reveal-delay: 270ms;
   }
+
+  /* Phones read while scrolling: text arrives sooner and travels less. */
+  @media (max-width: 47.99rem) {
+    [data-reveal] {
+      --reveal-offset: 8px;
+      --reveal-duration: 420ms;
+    }
+
+    [data-reveal-step] {
+      --reveal-delay: 0ms;
+    }
+  }
 }
 
 @keyframes reveal-rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(var(--reveal-offset, 14px));
   }
 }
 
@@ -347,6 +371,50 @@ a:hover {
     opacity: 1;
     clip-path: inset(0 round var(--radius));
   }
+}
+
+/* ---------- Page intros (first paint, once per route and document) ---------- */
+/*
+ * Secondary pages open with one short entrance on their heading group: `.intro-rise` (10px, 340ms,
+ * steps of 70ms) and, on Über uns only, `.intro-window` for the opening photograph. Pure CSS, so it
+ * also runs without JavaScript and always ends visible. Never on menus, prices, hours, phone numbers
+ * or form fields. The homepage hero keeps its own authored entrance (page.module.css).
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .intro-rise {
+    animation: intro-rise 340ms var(--intro-delay, 0ms) var(--ease-out) both;
+  }
+
+  .intro-rise[data-intro-step="1"] {
+    --intro-delay: 70ms;
+  }
+
+  .intro-rise[data-intro-step="2"] {
+    --intro-delay: 140ms;
+  }
+
+  .intro-window {
+    animation: reveal-window 760ms 120ms var(--ease-out) both;
+  }
+}
+
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/*
+ * Returning to a route in the same document (link, Back or Forward) shows it at rest: RevealObserver
+ * adds the route to <html data-intro-seen> when the visitor leaves it.
+ */
+html[data-intro-seen~="home"] [data-intro="home"],
+html[data-intro-seen~="home"] [data-intro="home"] *,
+html[data-intro-seen~="speisekarte"] [data-intro="speisekarte"] *,
+html[data-intro-seen~="ueber-uns"] [data-intro="ueber-uns"] *,
+html[data-intro-seen~="kontakt"] [data-intro="kontakt"] * {
+  animation: none;
 }
 
 .tabular {
@@ -370,7 +438,9 @@ a:hover {
 }
 
 @media print {
-  [data-reveal] {
+  [data-reveal],
+  .intro-rise,
+  .intro-window {
     opacity: 1 !important;
     transform: none !important;
     clip-path: none !important;
