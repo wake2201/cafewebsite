@@ -5,8 +5,8 @@ import { cafe } from "@/lib/cafe";
 import { getContactInfo } from "@/lib/content";
 import gastraum from "@/public/images/cafe/gastraum-und-tresen.jpg";
 import kaffeestation from "@/public/images/cafe/theke-kaffeestation.jpg";
-import tresen from "@/public/images/cafe/tresen-selbstbedienung.jpg";
-import kaffeetafel from "@/public/images/feiern/kaffeetafel-vor-wandlogo.jpg";
+import theke from "@/public/images/cafe/theke-mit-kuchen.jpg";
+import platten from "@/public/images/feiern/kuchen-und-canape-platten.jpg";
 import festtafel from "@/public/images/feiern/festtafel-laengs.jpg";
 import styles from "./page.module.css";
 
@@ -55,15 +55,20 @@ export default async function UeberUnsPage() {
           <h2 id="rundgang" className={styles.sectionTitle}>
             Ein Rundgang
           </h2>
+          {/* Milestone 4: the long view down the counter replaces a near-duplicate of the opening photo.
+              Left-anchored 3:2 crop: the chalkboard with a historical price (right edge) stays out of frame. */}
           <div className={styles.tourGrid}>
             <figure className={styles.tourMain}>
-              <Image
-                src={tresen}
-                alt="Tresen mit Blumen, Obstkorb und Regalen voller Gläser, davor ein Tisch mit einer Rose"
-                sizes="(min-width: 56rem) 62vw, 100vw"
-                placeholder="blur"
-              />
-              <figcaption>Am Tresen</figcaption>
+              <div className={styles.tourFrame}>
+                <Image
+                  src={theke}
+                  alt="Lange Theke mit Kuchen, Kaffeemaschine und Kuchenvitrine, dahinter Tische an der Fensterfront"
+                  sizes="(min-width: 56rem) 62vw, 100vw"
+                  placeholder="blur"
+                  className={styles.tourImage}
+                />
+              </div>
+              <figcaption>Entlang der Theke bis zur Fensterfront</figcaption>
             </figure>
             <figure className={styles.tourSide}>
               <div className={styles.squareFrame}>
@@ -97,21 +102,24 @@ export default async function UeberUnsPage() {
               </a>
             </p>
           </div>
+          {/* The close-up shows what the text promises (Kuchenplatten und Canapés), next to the long table. */}
           <div className={styles.filmstrip}>
             <figure>
               <Image
-                src={kaffeetafel}
-                alt="Weiß eingedeckte Kaffeetafel mit Kuchen- und Canapé-Platten vor der Wand mit dem Café-Logo"
-                sizes="(min-width: 56rem) 40vw, 100vw"
+                src={platten}
+                alt="Platten mit Kuchenstücken und belegten Canapés auf einer weiß gedeckten Tafel"
+                sizes="(min-width: 56rem) 40vw, 60vw"
                 placeholder="blur"
+                style={{ aspectRatio: `${platten.width} / ${platten.height}` }}
               />
             </figure>
             <figure>
               <Image
                 src={festtafel}
                 alt="Lange Festtafel mit weißen Tischdecken, Gedecken, Rosen und Platten mit Kuchen und Canapés"
-                sizes="(min-width: 56rem) 24vw, 70vw"
+                sizes="(min-width: 56rem) 24vw, 40vw"
                 placeholder="blur"
+                style={{ aspectRatio: `${festtafel.width} / ${festtafel.height}` }}
               />
             </figure>
           </div>

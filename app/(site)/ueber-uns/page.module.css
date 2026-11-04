@@ -101,7 +101,6 @@
   gap: var(--space-5);
 }
 
-.tourMain img,
 .filmstrip img {
   width: 100%;
   height: auto;
@@ -112,8 +111,20 @@
   margin-inline: calc(var(--gutter) * -1);
 }
 
-.tourMain img {
-  border-radius: 0;
+/* The 3:2 left-anchored crop (1012 of 1200 px) keeps the chalkboard with a historical price at the
+   right edge out of frame. overflow: hidden also contains the entrance scale below. */
+.tourFrame {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--color-border);
+}
+
+.tourImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0% 50%;
 }
 
 .tourMain figcaption {
@@ -151,7 +162,7 @@
     margin-inline: 0;
   }
 
-  .tourMain img {
+  .tourFrame {
     border-radius: var(--radius);
   }
 
@@ -164,6 +175,40 @@
     grid-column: 9 / span 4;
     width: auto;
     margin-top: var(--space-8);
+  }
+}
+
+/*
+ * Rundgang entrance, progressive enhancement (CSS scroll-driven animations, motion allowed only):
+ * the main photo settles from a slight scale inside its frame as it enters the viewport, and the
+ * side photo eases into its lower offset. No opacity or clipping, so nothing is hidden at any
+ * scroll position; browsers without support show the static layout.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .tourImage {
+      animation: tour-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+
+    .tourSide {
+      animation: tour-follow linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+  }
+}
+
+@keyframes tour-settle {
+  from {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes tour-follow {
+  from {
+    transform: translateY(2.5rem);
   }
 }
 

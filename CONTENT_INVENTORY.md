@@ -126,8 +126,10 @@ Note: `cafe_02.jpg` shows a chalkboard "Hausgemachter Kartoffelsalat mit Bockwur
   Deliberately not repeated on Über uns or Kontakt.
 - **Photos:** homepage (gastraum-mit-wandlogo, festtafel-an-der-fensterfront, kaffeetafel-am-fenster); Speisekarte
   (theke-mit-kuchen, bottom-anchored crop so the historical chalkboard price is out of frame); Über uns (gastraum-und-tresen,
-  theke-kaffeestation as a left-anchored square crop that excludes the chalkboard, kaffeetafel-vor-wandlogo, festtafel-laengs).
-  Not used: the three dish photos (historical dishes), kaffeetafel-gedeckt (near-duplicate), tresen-selbstbedienung.
+  theke-mit-kuchen as a left-anchored 3:2 crop that excludes the chalkboard, theke-kaffeestation as a left-anchored square
+  crop that excludes the chalkboard, kuchen-und-canape-platten, festtafel-laengs). Milestone 4.
+  Not used: the three dish photos (historical dishes), kaffeetafel-gedeckt (near-duplicate), tresen-selbstbedienung
+  (near-duplicate of gastraum-und-tresen), kaffeetafel-vor-wandlogo (replaced by the canapé close-up).
 
 ## 8. CMS migration (Milestone 3)
 - `sanity/seed/initial-content.ndjson` contains only verified legacy facts: contact details (§1), regular opening hours

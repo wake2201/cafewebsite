@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — Café am Lindenplatz
 
 Implementation record, maintained by Claude Code. Requirements live in `PROJECT_BRIEF.md`, design direction in `DESIGN.md`.
-Last updated: 2026-11-04 (Milestone 3.3, caching and image hotfix).
+Last updated: 2026-11-04 (Milestone 4, art direction and CSS-first motion).
 
 ## Stack
 - **Next.js 16.4.5** (App Router, Turbopack, Cache Components + Partial Prefetching), **React 19.3**, **TypeScript 5**, npm.
@@ -219,8 +219,17 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
 - Tokens from `DESIGN.md` as CSS custom properties (colours, fluid type scale `--step-*`, spacing, radius 3 px, 180 ms motion).
 - Type: **Newsreader** + **DM Sans**, self-hosted variable woff2 (SIL OFL 1.1, `app/fonts/OFL-*.txt`), no Google requests.
 - Signature element: the dated Wochenkarte as a printed menu card; italic Newsreader for every time cue.
-- Each page section has its own composition (no repeated card grids). One authored motion moment (homepage hero entrance),
-  CSS only, disabled under `prefers-reduced-motion`.
+- Each page section has its own composition (no repeated card grids).
+- **Motion (Milestone 4, CSS-first, no JS):** homepage hero entrance as CSS keyframes in `app/(site)/page.module.css`
+  (`hero-rise`, `hero-open`, `hero-settle`; fill `both`, total ≤ 1.6 s). Scroll-linked effects use CSS scroll-driven
+  animations (`animation-timeline: view()`) inside `@supports` + `prefers-reduced-motion: no-preference`:
+  `party-depth` (homepage Festtafel, `.partyMain` is `align-self: start` so the frame equals the photo) and
+  `tour-settle` / `tour-follow` (Über uns Rundgang). Only transforms; overflow-hidden frames; verified cover ≥ 4.6 px at
+  both drift extremes. The global reduced-motion rule in `globals.css` collapses any remaining durations.
+- **GSAP evaluated and removed:** the interrupted Milestone 4 prototype (`gsap`, `@gsap/react`, ScrollTrigger, SplitText,
+  client wrappers, a CSS visibility gate with a 3 s failsafe and a `<noscript>` override) added ~49 KB gzip to the homepage
+  and needed a client-side gate to avoid a first-paint flash. Removed entirely; `package.json` and the lockfile are back
+  to the Milestone 3.3 state. Public pages remain Server Components; no motion code ships to any route or to `/admin`.
 - Accessibility basics: skip link, visible focus ring, `aria-current` for nav and today, semantic lists, German alt texts.
 
 ## Images
@@ -228,8 +237,13 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
   Originals unmodified; only the logo trim and favicon crop are derivatives. No hotlinking or stock imagery. Not CMS-editable.
 - Where CSS sets `width: 100%; height: auto` on a lazy image, the `height` attribute no longer defines the box, so the
   image gets an explicit `aspect-ratio` from its static import (`style={{ aspectRatio: `${img.width} / ${img.height}` }}`).
-  Done for the two homepage party photos (Milestone 3.3, measured CLS 0 at 1440x900 and 390x844). The three lazy
-  photos on `/ueber-uns` use the same CSS pattern and are not yet changed.
+  Done for the two homepage party photos (Milestone 3.3, measured CLS 0 at 1440x900 and 390x844) and the two Über uns
+  filmstrip photos (Milestone 4); the Rundgang photo sits in a fixed 3:2 frame.
+- Milestone 4 photo composition: homepage hero recomposed (headline and introduction share a row from 64 rem, photo at
+  9:4 from y ≈ 390 px at 1440x900 instead of 595, "Heute" card overlapping its lower edge; tablets show introduction and
+  "Heute" side by side). Über uns: the near-duplicate `tresen-selbstbedienung` replaced by `theke-mit-kuchen` in a
+  left-anchored 3:2 crop that excludes the historical chalkboard price; `kuchen-und-canape-platten` (close-up) replaces
+  `kaffeetafel-vor-wandlogo` next to the long table, matching the text about Kuchenplatten und Canapés.
 
 ## Testing
 `npm test` (vitest): opening-hours logic incl. exceptions and Berlin midnight, menu selection, Sanity mappers and validation

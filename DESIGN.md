@@ -38,6 +38,19 @@ Typography strategy: one characterful editorial serif for expressive headlines (
 - Respect `prefers-reduced-motion`; avoid scroll-jacking, parallax gimmicks, image zoom-on-scroll, floating decorations, cursor effects, animated gradient background, excessive reveals.
 - Menus, buttons and forms must have visible focus styles, proper hover/disabled states and reachable touch targets.
 
+### Approved motion system (Milestone 4, CSS-first)
+- **No animation library.** A GSAP prototype was built and removed: the required effects do not justify ~49 KB of
+  JavaScript, a client-side visibility gate and failure fallbacks. All motion is plain CSS in the page's CSS Module.
+- **One authored moment, the homepage hero entrance** (first paint): headline, introduction, CTA and the "Heute" card rise
+  0.75 rem with a short stagger (0, 120, 200, 280 ms); the café photo opens from a slight inset like a window onto the
+  room while the image settles from 104 % scale. Visually at rest after about 0.6 to 0.8 s, exact by 1.6 s.
+- **Scroll-linked photography, progressive enhancement only** (`@supports (animation-timeline: view())`): gentle depth on
+  the homepage Festtafel (the image drifts ±2 % inside its frame at 106 % scale) and an entrance settle on the Über uns
+  Rundgang (main photo from 106 % scale, side photo eases into its offset). Different effect per section; never on
+  menus, prices, opening hours or forms.
+- **Never hides content:** no opacity or clip changes are tied to scroll; the entrance always runs to its end without
+  JavaScript. `prefers-reduced-motion: reduce` disables every animation; unsupported browsers show the static layout.
+
 ## Image guidance
 - Review all legacy photos and select by narrative purpose: venue/arrival, baked cake, plated lunch, atmosphere, personal detail.
 - Preserve aspect ratios and avoid awkward cropping or excessive filtering; use responsive `next/image` with proper sizes, LCP priority when necessary.

@@ -5,9 +5,16 @@
  */
 
 /* ---------- Hero ---------- */
+/*
+ * Milestone 4: the photograph leads. Headline and introduction share one row on wide screens so the
+ * room with the café's painted wall logo fills most of the first screen; the "Heute" card overlaps
+ * the photo's lower edge (paper laid on the picture). Phones keep the practical order: headline,
+ * introduction, "Heute", then the photo.
+ * Motion is CSS only (see the end of this section and DESIGN.md "Motion and interaction").
+ */
 
 .hero {
-  padding-block: var(--space-6) var(--space-7);
+  padding-block: var(--space-5) var(--space-7);
 }
 
 .heroGrid {
@@ -16,11 +23,12 @@
 }
 
 .heroTitle {
-  font-size: var(--step-5);
+  font-size: clamp(2.5rem, 1.55rem + 3.4vw, 4.75rem);
   font-weight: 380;
-  line-height: 0.98;
+  line-height: 1;
   letter-spacing: -0.022em;
-  max-width: 13ch;
+  max-width: 14ch;
+  text-wrap: balance;
 }
 
 .lede {
@@ -34,11 +42,11 @@
 }
 
 .heroFigure {
-  margin-top: var(--space-3);
   margin-inline: calc(var(--gutter) * -1);
 }
 
 .heroFrame {
+  position: relative;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--color-border);
@@ -60,8 +68,23 @@
 }
 
 @media (min-width: 48rem) {
+  /* Tablets: headline across, then introduction and "Heute" side by side, then the photo. */
+  .heroGrid {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    column-gap: var(--space-6);
+  }
+
   .heroTitle {
-    max-width: 16ch;
+    grid-column: 1 / -1;
+    max-width: 18ch;
+  }
+
+  .heroToday {
+    align-self: end;
+  }
+
+  .heroFigure {
+    grid-column: 1 / -1;
   }
 
   .heroFigure {
@@ -74,78 +97,131 @@
   }
 
   .heroImage {
-    object-position: 50% 32%;
+    object-position: 50% 34%;
   }
 
   .caption {
     padding-inline: 0;
-    text-align: right;
   }
 }
 
 @media (min-width: 64rem) {
   .hero {
-    padding-block: var(--space-7) var(--space-8);
+    padding-block: var(--space-6) var(--space-8);
   }
 
   .heroGrid {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--space-5);
     row-gap: var(--space-6);
-    align-items: end;
   }
 
   .heroTitle {
-    grid-column: 1 / span 11;
+    grid-column: 1 / span 8;
+    grid-row: 1;
+    align-self: end;
     max-width: none;
   }
 
   .heroIntro {
-    grid-column: 1 / span 6;
+    grid-column: 9 / span 4;
+    grid-row: 1;
+    align-self: end;
   }
 
-  .heroToday {
-    grid-column: 8 / span 5;
+  .lede {
+    font-size: 1.125rem;
+  }
+
+  .actions {
+    margin-top: var(--space-4);
   }
 
   .heroFigure {
     grid-column: 1 / -1;
-    margin-top: var(--space-2);
-  }
-}
-
-/* One authored moment: the cover settles in on first paint. Content is visible by default. */
-@media (prefers-reduced-motion: no-preference) {
-  .heroTitle {
-    animation: rise 700ms var(--ease-out) both;
-  }
-
-  .heroIntro {
-    animation: rise 700ms 90ms var(--ease-out) both;
-  }
-
-  .heroToday {
-    animation: rise 700ms 160ms var(--ease-out) both;
+    grid-row: 2;
   }
 
   .heroFrame {
-    animation: unveil 1000ms 120ms var(--ease-out) both;
+    aspect-ratio: 9 / 4;
+  }
+
+  /* The card sits on the photo's lower edge, right column; the caption stays left of it. */
+  .heroToday {
+    grid-column: 9 / span 4;
+    grid-row: 2;
+    align-self: end;
+    z-index: 1;
+    margin-bottom: calc(var(--space-6) * -1);
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(49, 40, 32, 0.06), 0 12px 32px -12px rgba(49, 40, 32, 0.28);
+  }
+
+  /* The card is the frame here; the panel's own top rule (used on narrow screens) would double it. */
+  .heroToday > section {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .caption {
+    max-width: 60%;
   }
 }
 
-@keyframes rise {
+/*
+ * One authored moment: the hero settles in on first paint. CSS only: the content is in the HTML,
+ * the animation always runs to its end (also without JavaScript), and fill "both" never leaves
+ * anything hidden. Small distances, short stagger (0 to 280 ms), under 1.6 s in total.
+ * Reduced motion: no animation at all.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .heroTitle {
+    animation: hero-rise 900ms var(--ease-out) both;
+  }
+
+  .lede {
+    animation: hero-rise 900ms 120ms var(--ease-out) both;
+  }
+
+  .actions {
+    animation: hero-rise 900ms 200ms var(--ease-out) both;
+  }
+
+  .heroToday {
+    animation: hero-rise 900ms 280ms var(--ease-out) both;
+  }
+
+  /* The photo opens from a slight inset like a window onto the room, while the image settles. */
+  .heroFrame {
+    animation: hero-open 1200ms 60ms var(--ease-out) both;
+  }
+
+  .heroImage {
+    animation: hero-settle 1500ms 60ms var(--ease-out) both;
+  }
+}
+
+@keyframes hero-rise {
   from {
     opacity: 0;
     transform: translateY(0.75rem);
   }
 }
 
-@keyframes unveil {
+@keyframes hero-open {
   from {
-    clip-path: inset(0 0 100% 0);
+    clip-path: inset(5% 3.5%);
   }
   to {
-    clip-path: inset(0 0 0 0);
+    clip-path: inset(0);
+  }
+}
+
+@keyframes hero-settle {
+  from {
+    transform: scale(1.04);
   }
 }
 
@@ -257,6 +333,8 @@
 
 .partyMain {
   margin-inline: calc(var(--gutter) * -1);
+  /* The photo's scroll-linked depth (below) moves inside this frame, never outside it. */
+  overflow: hidden;
 }
 
 .partyMain img {
@@ -295,10 +373,12 @@
   .partyMain {
     grid-column: 1 / span 7;
     grid-row: 1 / span 2;
+    /* Frame = photo height (not the stretched grid area), so the depth effect stays inside it. */
+    align-self: start;
     margin-inline: 0;
   }
 
-  .partyMain img {
+  .partyMain {
     border-radius: var(--radius);
   }
 
@@ -313,6 +393,31 @@
     grid-row: 2;
     width: auto;
     justify-self: stretch;
+  }
+}
+
+/*
+ * Photographic depth on the long table, the site's one scroll-linked effect (progressive
+ * enhancement: only where CSS scroll-driven animations exist, and only with motion allowed).
+ * The image is scaled 6 % inside its frame and drifts a few percent while the section passes, so no
+ * edge is ever empty (verified: at least 5 px cover at both extremes) and nothing is hidden.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .partyMain img {
+      animation: party-depth linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+  }
+}
+
+@keyframes party-depth {
+  from {
+    transform: scale(1.06) translateY(-2%);
+  }
+  to {
+    transform: scale(1.06) translateY(2%);
   }
 }
 
