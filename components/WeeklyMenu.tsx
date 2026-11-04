@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import { berlinToday } from "@/lib/cafe";
-import { getWeeklyMenus, selectWeeklyMenu } from "@/lib/weekly-menu";
+import { getContactInfo, getOpeningHours, getWeeklyMenus } from "@/lib/content";
+import { selectWeeklyMenu } from "@/lib/weekly-menu";
 import { WeeklyMenuView } from "./WeeklyMenuView";
 
 type Props = { headingLevel?: "h2" | "h3"; id?: string };
@@ -11,10 +12,20 @@ type Props = { headingLevel?: "h2" | "h3"; id?: string };
  */
 export async function WeeklyMenu({ headingLevel, id }: Props) {
   "use cache";
-  cacheLife({ stale: 300, revalidate: 900, expire: 3600 });
+  cacheLife("cms");
 
   const today = berlinToday();
-  const selection = selectWeeklyMenu(await getWeeklyMenus(), today.isoDate);
+  const [menus, contact, hours] = await Promise.all([getWeeklyMenus(), getContactInfo(), getOpeningHours()]);
+  const selection = selectWeeklyMenu(menus, today.isoDate);
 
-  return <WeeklyMenuView selection={selection} todayIso={today.isoDate} headingLevel={headingLevel} id={id} />;
+  return (
+    <WeeklyMenuView
+      selection={selection}
+      todayIso={today.isoDate}
+      headingLevel={headingLevel}
+      id={id}
+      phone={contact.phone}
+      lunch={hours.lunch}
+    />
+  );
 }

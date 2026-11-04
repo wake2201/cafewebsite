@@ -1,21 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FocusEvent, type FormEvent } from "react";
-import { cafe } from "@/lib/cafe";
+import { startTransition, useActionState, useEffect, useRef, useState, type FocusEvent, type FormEvent } from "react";
+import { sendContactMessage } from "@/app/(site)/kontakt/actions";
+import { initialContactState } from "@/lib/contact/state";
+import type { ContactInfo } from "@/lib/site-types";
 import styles from "./ContactForm.module.css";
 
 /*
- * Contact form, presentation and validation only (Milestone 2).
- * Sending is NOT implemented: the submit button is disabled in the server-rendered HTML, the form
- * has no action, and nothing is stored. Milestone 3 connects a server action that validates again
- * on the server and sends the e-mail; field names below are the contract for that handler.
+ * Kontakt form. Validates in the browser for quick feedback; the server action validates again
+ * and decides. Sending only works when the server-side delivery gate is open (`enabled`), which
+ * the page reads from server environment variables. No success message is shown unless the
+ * e-mail provider accepted the message. Nothing is stored.
  */
 
 type FieldName = "name" | "email" | "subject" | "message" | "privacy";
 type Field = HTMLInputElement | HTMLTextAreaElement;
-
-const SUBMISSION_ENABLED = false;
+const VALIDATED: FieldName[] = ["name", "email", "message", "privacy"];
 
 function messageFor(field: Field): string {
   const v = field.validity;
@@ -36,50 +37,103 @@ function messageFor(field: Field): string {
   }
 }
 
-export function ContactForm() {
-  const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
+type Props = { enabled: boolean; phone: ContactInfo["phone"] };
+
+export function ContactForm({ enabled, phone }: Props) {
+  const [state, formAction, isPending] = useActionState(sendContactMessage, initialContactState);
+  const [clientErrors, setClientErrors] = useState<Partial<Record<FieldName, string>>>({});
+  const formRef = useRef<HTMLFormElement>(null);
+  const statusRef = useRef<HTMLParagraphElement>(null);
+  // One id per unchanged message: an unedited retry reuses it, so the provider sends only once.
+  const requestIdRef = useRef<string | undefined>(undefined);
+
+  const serverErrors = state.status === "invalid" ? state.fieldErrors : {};
+  // A field the visitor has re-checked in the browser takes precedence over the last server answer.
+  const errorFor = (name: FieldName) => (name in clientErrors ? clientErrors[name] : serverErrors[name]);
+
+  useEffect(() => {
+    if (state.status === "success") {
+      formRef.current?.reset();
+      requestIdRef.current = undefined;
+      statusRef.current?.focus();
+    } else if (state.status === "error" || state.status === "disabled") {
+      statusRef.current?.focus();
+    } else if (state.status === "invalid") {
+      const first = VALIDATED.find((name) => state.fieldErrors[name]);
+      if (first) formRef.current?.querySelector<Field>(`[name="${first}"]`)?.focus();
+    }
+  }, [state]);
 
   const validate = (field: Field) => {
     const name = field.name as FieldName;
+    if (!VALIDATED.includes(name)) return;
     const message = messageFor(field);
-    setErrors((prev) => (prev[name] === message ? prev : { ...prev, [name]: message }));
+    setClientErrors((prev) => (prev[name] === message ? prev : { ...prev, [name]: message }));
   };
 
-  // Validate when leaving a field, then live while correcting a field that already shows an error.
   const onBlur = (event: FocusEvent<HTMLFormElement>) => {
     const target = event.target;
     if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) validate(target);
   };
   const onChange = (event: FormEvent<HTMLFormElement>) => {
+    // Edited content is a new message: it must not reuse the previous idempotency key.
+    requestIdRef.current = undefined;
     const target = event.target;
-    if ((target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) && errors[target.name as FieldName]) {
+    if ((target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) && errorFor(target.name as FieldName)) {
       validate(target);
     }
   };
+
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
-    // Defensive: the button is disabled, but never let the browser send or put data in the URL.
+    // With JavaScript we submit manually so the form keeps the visitor's input if sending fails.
     event.preventDefault();
+    if (!enabled || isPending) return;
+    const form = event.currentTarget;
+    const fields = VALIDATED.map((name) => form.elements.namedItem(name)).filter(
+      (el): el is Field => el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement,
+    );
+    setClientErrors(Object.fromEntries(fields.map((f) => [f.name, messageFor(f)])));
+    const firstInvalid = fields.find((f) => !f.validity.valid);
+    if (firstInvalid) {
+      firstInvalid.focus();
+      return;
+    }
+    // Valid in the browser: drop local messages so the server's answer is what the visitor sees.
+    setClientErrors({});
+    requestIdRef.current ??= crypto.randomUUID();
+    const data = new FormData(form);
+    data.set("requestId", requestIdRef.current);
+    startTransition(() => formAction(data));
   };
 
-  const describedBy = (name: FieldName, hint?: string) =>
-    [hint, errors[name] ? `${name}-fehler` : undefined].filter(Boolean).join(" ") || undefined;
-
+  const describedBy = (name: FieldName) => (errorFor(name) ? `${name}-fehler` : undefined);
   const error = (name: FieldName) =>
-    errors[name] ? (
+    errorFor(name) ? (
       <p id={`${name}-fehler`} className={styles.error} aria-live="polite">
-        {errors[name]}
+        {errorFor(name)}
       </p>
     ) : null;
 
+  const statusMessage =
+    state.status === "success"
+      ? "Vielen Dank, Ihre Nachricht wurde abgeschickt. Falls Sie keine Antwort erhalten, rufen Sie uns gern an."
+      : state.status === "error" || state.status === "disabled"
+        ? state.message
+        : null;
+
   return (
     <form
+      ref={formRef}
       className={styles.form}
       method="post"
+      // Without JavaScript the server action still receives the form (progressive enhancement).
+      action={enabled ? formAction : undefined}
       noValidate
       onBlur={onBlur}
       onChange={onChange}
       onSubmit={onSubmit}
       aria-describedby="formular-hinweis"
+      aria-busy={isPending || undefined}
     >
       <div className={styles.row}>
         <div className={styles.field}>
@@ -91,7 +145,7 @@ export function ContactForm() {
             autoComplete="name"
             required
             maxLength={100}
-            aria-invalid={errors.name ? true : undefined}
+            aria-invalid={errorFor("name") ? true : undefined}
             aria-describedby={describedBy("name")}
           />
           {error("name")}
@@ -108,7 +162,7 @@ export function ContactForm() {
             required
             maxLength={200}
             placeholder="name@beispiel.de"
-            aria-invalid={errors.email ? true : undefined}
+            aria-invalid={errorFor("email") ? true : undefined}
             aria-describedby={describedBy("email")}
           />
           {error("email")}
@@ -132,10 +186,16 @@ export function ContactForm() {
           required
           minLength={10}
           maxLength={2000}
-          aria-invalid={errors.message ? true : undefined}
+          aria-invalid={errorFor("message") ? true : undefined}
           aria-describedby={describedBy("message")}
         />
         {error("message")}
+      </div>
+
+      {/* Spam trap: hidden from people and assistive technology; bots that fill it are rejected. */}
+      <div className={styles.trap} aria-hidden="true">
+        <label htmlFor="kontakt-website">Website (bitte leer lassen)</label>
+        <input id="kontakt-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
       {/* Wording to be confirmed together with the privacy policy (legal milestone). */}
@@ -145,7 +205,7 @@ export function ContactForm() {
           name="privacy"
           type="checkbox"
           required
-          aria-invalid={errors.privacy ? true : undefined}
+          aria-invalid={errorFor("privacy") ? true : undefined}
           aria-describedby={describedBy("privacy")}
         />
         <label htmlFor="kontakt-datenschutz">
@@ -156,12 +216,38 @@ export function ContactForm() {
       </div>
 
       <div className={styles.submitRow}>
-        <p id="formular-hinweis" className={styles.notice} role="note">
-          Das Kontaktformular wird gerade eingerichtet und versendet noch keine Nachrichten. Bitte rufen Sie uns
-          bis dahin an: <a href={cafe.phone.href}>{cafe.phone.display}</a>
+        {enabled ? (
+          <p id="formular-hinweis" className={styles.notice}>
+            Ihre Nachricht wird per E-Mail an das Café gesendet und nicht auf der Website gespeichert.
+          </p>
+        ) : (
+          <p id="formular-hinweis" className={styles.notice} role="note">
+            Das Kontaktformular ist noch nicht freigeschaltet und versendet keine Nachrichten. Bitte rufen Sie uns an:{" "}
+            <a href={phone.href}>{phone.display}</a>
+          </p>
+        )}
+        <p
+          ref={statusRef}
+          tabIndex={-1}
+          role="status"
+          className={styles.status}
+          data-tone={state.status === "success" ? "success" : statusMessage ? "error" : undefined}
+        >
+          {statusMessage}
+          {statusMessage ? (
+            <>
+              {" "}
+              <a href={phone.href}>{phone.display}</a>
+            </>
+          ) : null}
         </p>
-        <button type="submit" className="button" disabled={!SUBMISSION_ENABLED} aria-describedby="formular-hinweis">
-          Nachricht senden
+        <button
+          type="submit"
+          className="button"
+          disabled={!enabled || isPending}
+          aria-describedby="formular-hinweis"
+        >
+          {isPending ? "Wird gesendet …" : "Nachricht senden"}
         </button>
       </div>
     </form>

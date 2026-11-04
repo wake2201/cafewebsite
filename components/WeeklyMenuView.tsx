@@ -1,5 +1,6 @@
-import { cafe } from "@/lib/cafe";
+import { formatRange as formatTimeRange } from "@/lib/hours";
 import type { WeeklyMenuSelection } from "@/lib/menu-types";
+import type { ContactInfo, TimeRange } from "@/lib/site-types";
 import { formatDayMonth, formatPrice, formatRange, formatShortDate, formatWeekday } from "@/lib/weekly-menu";
 import styles from "./WeeklyMenu.module.css";
 
@@ -9,13 +10,22 @@ type Props = {
   todayIso: string;
   headingLevel?: "h2" | "h3";
   id?: string;
+  phone: ContactInfo["phone"];
+  lunch?: TimeRange;
 };
 
 /**
  * Presentational weekly menu. Knows nothing about where the data comes from:
  * it renders whatever selection it receives (current week, upcoming preview, or none).
  */
-export function WeeklyMenuView({ selection, todayIso, headingLevel: Heading = "h2", id = "wochenkarte" }: Props) {
+export function WeeklyMenuView({
+  selection,
+  todayIso,
+  headingLevel: Heading = "h2",
+  id = "wochenkarte",
+  phone,
+  lunch,
+}: Props) {
   const menu = selection.status === "none" ? null : selection.menu;
   const isPreview = selection.status === "upcoming";
 
@@ -32,9 +42,7 @@ export function WeeklyMenuView({ selection, todayIso, headingLevel: Heading = "h
               {formatRange(menu.validFrom, menu.validTo)}
             </p>
           ) : null}
-          <p className={styles.lunch}>
-            Mittagstisch von {cafe.lunch.from} bis {cafe.lunch.to} Uhr
-          </p>
+          {lunch ? <p className={styles.lunch}>Mittagstisch {formatTimeRange(lunch)}</p> : null}
           {isPreview && menu ? (
             <p className={styles.previewNote}>
               Diese Karte gilt ab {formatWeekday(menu.validFrom)}, {formatDayMonth(menu.validFrom)}. Für die
@@ -70,7 +78,7 @@ export function WeeklyMenuView({ selection, todayIso, headingLevel: Heading = "h
                             <div key={dish.name} className={styles.dish}>
                               <p className={styles.dishName}>
                                 {dish.name}
-                                {dish.note ? <span className={styles.dishNote}>{dish.note}</span> : null}
+                                {dish.description ? <span className={styles.dishNote}>{dish.description}</span> : null}
                               </p>
                               {dish.priceEur !== undefined ? (
                                 <p className={`${styles.price} tabular`}>{formatPrice(dish.priceEur)}</p>
@@ -93,7 +101,7 @@ export function WeeklyMenuView({ selection, todayIso, headingLevel: Heading = "h
         ) : (
           <div className={styles.empty}>
             <p>
-              Die Wochenkarte für diese Woche ist hier noch nicht eingetragen
+              Für diese Woche ist hier noch keine Wochenkarte eingetragen
               {selection.status === "none" && selection.lastValidTo ? (
                 <> (die zuletzt eingetragene Karte galt bis {formatDayMonth(selection.lastValidTo)})</>
               ) : null}
@@ -101,7 +109,7 @@ export function WeeklyMenuView({ selection, todayIso, headingLevel: Heading = "h
             </p>
             <p>
               Was es heute zu Mittag gibt, erfahren Sie telefonisch unter{" "}
-              <a href={cafe.phone.href}>{cafe.phone.display}</a>.
+              <a href={phone.href}>{phone.display}</a>.
             </p>
           </div>
         )}

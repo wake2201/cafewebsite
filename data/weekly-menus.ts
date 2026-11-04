@@ -1,14 +1,16 @@
 import type { WeeklyMenu } from "@/lib/menu-types";
 
 /**
- * Static weekly menus until Sanity takes over (Milestone 3). Add new weeks to the list;
- * the selection logic in `lib/weekly-menu.ts` decides what is current, upcoming or expired.
+ * Development fixture ONLY: used while Sanity is not configured. Never imported into the CMS
+ * and never used as a fallback when Sanity is connected (see lib/content.ts).
+ * The selection logic in `lib/weekly-menu.ts` decides what is current, upcoming or expired,
+ * so this week disappears from the site automatically after its end date.
  *
  * 2026-11-02 week transcribed verbatim from
  * https://www.cafeamlindenplatzzeitz.de/index.php/speisekarte on 2026-11-04. The legacy table has
  * no weekday labels except "Mittwoch: Geschlossen!" in row 3; dates are mapped from row order.
  */
-export const weeklyMenus: WeeklyMenu[] = [
+export const weeklyMenusFixture: WeeklyMenu[] = [
   {
     validFrom: "2026-11-02",
     validTo: "2026-11-06",

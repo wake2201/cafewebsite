@@ -1,77 +1,17 @@
-/**
- * Operational business facts for Café am Lindenplatz.
- *
- * Source: legacy website https://www.cafeamlindenplatzzeitz.de/ (homepage, Kontakt,
- * Impressum), retrieved 2026-11-04. See CONTENT_INVENTORY.md for provenance and the
- * items that still need confirmation by the café before go-live.
- *
- * Milestone 3 moves hours and contact details into Sanity; until then this file is the
- * single source of truth so header, footer, homepage and stub pages stay consistent.
- */
+import type { Weekday } from "./site-types";
 
+/**
+ * Fixed identity facts that stay in code (not CMS-editable): the café's name, the owner
+ * named in the logo and Impressum, and the unconfirmed party size from an older poster.
+ * Editable business data (contact details, hours, menus, offers) comes from `lib/content.ts`.
+ * Provenance: legacy website, retrieved 2026-11-04 (CONTENT_INVENTORY.md).
+ */
 export const cafe = {
   name: "Café am Lindenplatz",
   owner: "Kerstin Leithold", // non-breaking space keeps the name on one line
-  address: {
-    street: "Röntgenstraße 1", // non-breaking: never split street and number
-    postalCode: "06712",
-    city: "Zeitz",
-    region: "Sachsen-Anhalt",
-  },
-  phone: {
-    display: "03441 2 79 77 78",
-    href: "tel:+4934412797778",
-  },
-  // External link only (no embedded map). Query by address, no personal data.
-  directionsUrl:
-    "https://www.google.com/maps/search/?api=1&query=R%C3%B6ntgenstra%C3%9Fe+1%2C+06712+Zeitz",
-  breakfastFrom: "08:00",
-  lunch: { from: "11:30", to: "14:00" },
+  /** From an older poster only; awaiting owner confirmation (CONTENT_INVENTORY.md §6). */
   maxPartySize: 30,
 } as const;
-
-/** 0 = Sunday … 6 = Saturday (matches Date#getDay). */
-export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-
-export type DayHours = { open: string; close: string } | null;
-
-export const weekdayNames: Record<Weekday, string> = {
-  0: "Sonntag",
-  1: "Montag",
-  2: "Dienstag",
-  3: "Mittwoch",
-  4: "Donnerstag",
-  5: "Freitag",
-  6: "Samstag",
-};
-
-export const openingHours: Record<Weekday, DayHours> = {
-  1: { open: "08:00", close: "17:00" },
-  2: { open: "08:00", close: "17:00" },
-  3: null, // Ruhetag
-  4: { open: "08:00", close: "17:00" },
-  5: { open: "08:00", close: "17:00" },
-  6: { open: "14:00", close: "17:00" },
-  0: { open: "14:00", close: "17:00" },
-};
-
-/** Compact rows for display, in the same grouping the café uses on its own poster. */
-export const openingHoursSummary: { days: string; weekdays: Weekday[]; hours: string }[] = [
-  { days: "Montag, Dienstag", weekdays: [1, 2], hours: "08:00 – 17:00 Uhr" },
-  { days: "Mittwoch", weekdays: [3], hours: "Ruhetag" },
-  { days: "Donnerstag, Freitag", weekdays: [4, 5], hours: "08:00 – 17:00 Uhr" },
-  { days: "Samstag, Sonntag", weekdays: [6, 0], hours: "14:00 – 17:00 Uhr" },
-];
-
-/** The next weekday after `from` with regular opening hours (weekly pattern only, no holidays yet). */
-export function nextOpenDay(from: Weekday): { weekday: Weekday; hours: NonNullable<DayHours> } {
-  for (let step = 1; step <= 7; step++) {
-    const weekday = ((from + step) % 7) as Weekday;
-    const hours = openingHours[weekday];
-    if (hours) return { weekday, hours };
-  }
-  throw new Error("openingHours has no open day");
-}
 
 /** Calendar date and weekday in the café's own time zone. */
 export function berlinToday(now: Date = new Date()): { isoDate: string; weekday: Weekday } {
@@ -88,4 +28,19 @@ export function berlinToday(now: Date = new Date()): { isoDate: string; weekday:
     isoDate: `${get("year")}-${get("month")}-${get("day")}`,
     weekday: weekdayIndex as Weekday,
   };
+}
+
+/** "03441 2 79 77 78" → "tel:+4934412797778" (German numbers; keeps an existing +country code). */
+export function toTelHref(display: string): string {
+  const compact = display.replace(/[^\d+]/g, "");
+  if (compact.startsWith("+")) return `tel:${compact}`;
+  if (compact.startsWith("00")) return `tel:+${compact.slice(2)}`;
+  if (compact.startsWith("0")) return `tel:+49${compact.slice(1)}`;
+  return `tel:${compact}`;
+}
+
+/** External directions link by address only (no embed, no personal data). */
+export function directionsUrl(address: { street: string; postalCode: string; city: string }): string {
+  const query = `${address.street}, ${address.postalCode} ${address.city}`.replace(/ /g, " ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }

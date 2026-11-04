@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cafe } from "@/lib/cafe";
+import { getContactInfo } from "@/lib/content";
 import logo from "@/public/images/brand/cafe-am-lindenplatz-logo.png";
 import { NavLinks } from "./NavLinks";
 import styles from "./SiteHeader.module.css";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const contact = await getContactInfo();
   return (
     <header className={styles.header}>
       <div className={`container ${styles.inner}`}>
@@ -21,9 +23,9 @@ export function SiteHeader() {
         <nav aria-label="Hauptnavigation" className={styles.nav}>
           <NavLinks />
         </nav>
-        <a href={cafe.phone.href} className={styles.phone}>
+        <a href={contact.phone.href} className={styles.phone}>
           <span className="visually-hidden">Telefon: </span>
-          {cafe.phone.display}
+          {contact.phone.display}
         </a>
       </div>
     </header>

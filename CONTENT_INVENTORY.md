@@ -128,3 +128,11 @@ Note: `cafe_02.jpg` shows a chalkboard "Hausgemachter Kartoffelsalat mit Bockwur
   (theke-mit-kuchen, bottom-anchored crop so the historical chalkboard price is out of frame); Über uns (gastraum-und-tresen,
   theke-kaffeestation as a left-anchored square crop that excludes the chalkboard, kaffeetafel-vor-wandlogo, festtafel-laengs).
   Not used: the three dish photos (historical dishes), kaffeetafel-gedeckt (near-duplicate), tresen-selbstbedienung.
+
+## 8. CMS migration (Milestone 3)
+- `sanity/seed/initial-content.ndjson` contains only verified legacy facts: contact details (§1), regular opening hours
+  with Mittwoch Ruhetag, breakfast/lunch times, and the seven standing offer categories (§2, item 8 excluded) in three
+  groups. A unit test checks it is identical to the fixtures in `data/`.
+- **Not imported:** any weekly menu (the 2.–6. November 2026 week stays a development fixture only), the public e-mail
+  address (not yet approved, §6.5), "Festlichkeiten bis 30 Personen" (unconfirmed, §6.6), prices (none in the source).
+- The import has not been run: it needs a Sanity project and explicit approval.

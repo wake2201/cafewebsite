@@ -1,13 +1,4 @@
-import { weeklyMenus } from "@/data/weekly-menus";
 import type { WeeklyMenu, WeeklyMenuSelection } from "./menu-types";
-
-/**
- * Data access for weekly menus. Today it reads the static list in `data/weekly-menus.ts`;
- * in Milestone 3 this becomes a Sanity query returning the same `WeeklyMenu[]` shape.
- */
-export async function getWeeklyMenus(): Promise<WeeklyMenu[]> {
-  return weeklyMenus;
-}
 
 /**
  * Chooses what to show for `isoDate` (Europe/Berlin calendar date):

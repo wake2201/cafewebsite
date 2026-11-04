@@ -5,9 +5,10 @@
 
 export type Dish = {
   name: string;
+  /** Optional short description shown under the name. */
+  description?: string;
   /** Omitted when the café publishes no price for the dish. */
   priceEur?: number;
-  note?: string;
 };
 
 export type WeeklyMenuDay = {
@@ -39,9 +40,11 @@ export type WeeklyMenuSelection =
 
 export type StandingOffer = {
   title: string;
-  detail: string;
+  detail?: string;
   /** Time cue shown in the italic menu-card voice, only where the source gives one. */
   when?: string;
+  /** Optional price; only shown when the café enters one. */
+  priceEur?: number;
 };
 
 export type StandingOfferGroup = {

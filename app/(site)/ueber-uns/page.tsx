@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { cafe } from "@/lib/cafe";
+import { getContactInfo } from "@/lib/content";
 import gastraum from "@/public/images/cafe/gastraum-und-tresen.jpg";
 import kaffeestation from "@/public/images/cafe/theke-kaffeestation.jpg";
 import tresen from "@/public/images/cafe/tresen-selbstbedienung.jpg";
@@ -20,14 +21,15 @@ export const metadata: Metadata = {
  * No founding date, history, staff stories or quotes exist in the source, so none are shown.
  * The party size from the older poster is deliberately not repeated here (awaiting confirmation).
  */
-export default function UeberUnsPage() {
+export default async function UeberUnsPage() {
+  const contact = await getContactInfo();
   return (
     <>
       <header className={`container ${styles.intro}`}>
         <div className={styles.introText}>
           <h1 className={styles.title}>Über uns</h1>
           <p className={styles.lede}>
-            Das {cafe.name} liegt in der {cafe.address.street} in {cafe.address.city} und wird von Inhaberin{" "}
+            Das {cafe.name} liegt in der {contact.address.street} in {contact.address.city} und wird von Inhaberin{" "}
             {cafe.owner} geführt.
           </p>
           <p>
@@ -90,8 +92,8 @@ export default function UeberUnsPage() {
               Sie uns gern nach den Möglichkeiten für Ihren Anlass.
             </p>
             <p>
-              <a href={cafe.phone.href} className={styles.phone}>
-                {cafe.phone.display}
+              <a href={contact.phone.href} className={styles.phone}>
+                {contact.phone.display}
               </a>
             </p>
           </div>

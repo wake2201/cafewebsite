@@ -1,20 +1,28 @@
 import Link from "next/link";
 import { cafe } from "@/lib/cafe";
+import { getContactInfo } from "@/lib/content";
 import { legalNav, primaryNav } from "./navigation";
 import styles from "./SiteFooter.module.css";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const contact = await getContactInfo();
   return (
     <footer className={styles.footer}>
       <div className={`container ${styles.grid}`}>
         <div className={styles.identity}>
           <p className={styles.name}>{cafe.name}</p>
           <address className={styles.address}>
-            {cafe.address.street}
+            {contact.address.street}
             <br />
-            {cafe.address.postalCode} {cafe.address.city}
+            {contact.address.postalCode} {contact.address.city}
             <br />
-            <a href={cafe.phone.href}>{cafe.phone.display}</a>
+            <a href={contact.phone.href}>{contact.phone.display}</a>
+            {contact.email ? (
+              <>
+                <br />
+                <a href={`mailto:${contact.email}`}>{contact.email}</a>
+              </>
+            ) : null}
           </address>
         </div>
 

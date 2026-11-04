@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { PageStub } from "@/components/PageStub";
 import { cafe } from "@/lib/cafe";
+import { getContactInfo } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Impressum" };
 
-export default function ImpressumPage() {
+export default async function ImpressumPage() {
+  const contact = await getContactInfo();
   return (
     <PageStub
       title="Impressum"
@@ -16,12 +18,12 @@ export default function ImpressumPage() {
         <br />
         {cafe.name}
         <br />
-        {cafe.address.street}
+        {contact.address.street}
         <br />
-        {cafe.address.postalCode} {cafe.address.city}
+        {contact.address.postalCode} {contact.address.city}
       </address>
       <p>
-        Telefon: <a href={cafe.phone.href}>{cafe.phone.display}</a>
+        Telefon: <a href={contact.phone.href}>{contact.phone.display}</a>
       </p>
     </PageStub>
   );

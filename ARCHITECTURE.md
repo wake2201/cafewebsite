@@ -1,123 +1,200 @@
 # ARCHITECTURE.md — Café am Lindenplatz
 
 Implementation record, maintained by Claude Code. Requirements live in `PROJECT_BRIEF.md`, design direction in `DESIGN.md`.
-Last updated: 2026-11-04 (Milestone 2.1, Kontakt and Über uns refinement).
+Last updated: 2026-11-04 (Milestone 3, Sanity CMS and contact backend).
 
 ## Stack
-- **Next.js 16.4.5** (App Router, Turbopack), **React 19.3**, **TypeScript 5**, npm. Scaffolded with `create-next-app@16.4.5`
-  (defaults: Cache Components + Partial Prefetching on). ESLint 9 with `eslint-config-next`.
-- **Styling:** plain CSS — global tokens/utilities in `app/globals.css`, one CSS Module per component/page. No Tailwind, no UI kit.
-- **No runtime dependencies** beyond `next`, `react`, `react-dom`.
-- `next.config.ts`: `agentRules: false` so `next dev` never injects its block into the project-owned `AGENTS.md`; AVIF/WebP image formats; `poweredByHeader: false`.
+- **Next.js 16.4.5** (App Router, Turbopack, Cache Components + Partial Prefetching), **React 19.3**, **TypeScript 5**, npm.
+- **Runtime dependencies:** `next`, `react`, `react-dom`, plus for the CMS only: `sanity` 6.22, `next-sanity` 13.4
+  (brings `@sanity/client`), `styled-components` 6 (Studio peer), `@sanity/locale-de-de` (German Studio UI).
+- **Dev:** ESLint 9 (`eslint-config-next`), `vitest` 4.1 (unit tests; 4.x because 5.x requires `@types/node` ≥ 22).
+- **Styling:** plain CSS, tokens in `app/globals.css`, one CSS Module per component/page. No UI kit.
+- `next.config.ts`: `agentRules: false` (keeps `next dev` out of the project-owned `AGENTS.md`), AVIF/WebP images,
+  `poweredByHeader: false`, and the custom cache profile `cms` (see Caching).
 
 ## Directory layout
 ```
 app/
-  layout.tsx            root layout: fonts, skip link, header, footer, metadata (lang="de", robots noindex pre-launch)
-  page.tsx (+ .module.css)   homepage
-  speisekarte/ ueber-uns/ kontakt/   full pages (M2), each with its own page.module.css
-  impressum/ datenschutz/            clearly marked stubs until the legal milestone
-  not-found.tsx
-  fonts.ts, fonts/      self-hosted woff2 + OFL licence files
-  icon.png, apple-icon.png
-components/             SiteHeader, NavLinks*, SiteFooter, WeeklyMenu (loader) + WeeklyMenuView (pure view), TodayPanel,
-                        OpeningHours, ContactForm*, PageStub, navigation.ts        (* = client components)
-data/                   static business data, replaced by Sanity in M3
-  weekly-menus.ts       list of dated weekly menus (current, future and past weeks)
-  standing-offers.ts    standing offer categories from the legacy site, flat and grouped
+  layout.tsx                 document shell only (html lang="de", fonts, robots noindex)
+  not-found.tsx              404 with site chrome
+  (site)/layout.tsx          public site: globals.css, skip link, header, main, footer, site metadata
+  (site)/page.tsx, speisekarte/, ueber-uns/, kontakt/ (+ actions.ts), impressum/, datenschutz/
+  (studio)/admin/[[...tool]]/page.tsx + Studio.tsx   embedded Sanity Studio (or a setup notice)
+components/                  SiteChrome, SiteHeader, NavLinks*, SiteFooter, WeeklyMenu + WeeklyMenuView, TodayPanel,
+                             OpeningHours, ContactForm*, PageStub          (* = client components)
 lib/
-  cafe.ts               business facts, opening hours, Europe/Berlin date helpers  ← fixed facts until Sanity
-  menu-types.ts         content contract: WeeklyMenu, WeeklyMenuDay, Dish, WeeklyMenuSelection, StandingOffer(Group)
-  weekly-menu.ts        getWeeklyMenus() (data access, becomes a Sanity query), selectWeeklyMenu(), formatters
-public/images/{brand,cafe,feiern,speisen}/   curated, descriptively named legacy assets (provenance: CONTENT_INVENTORY.md)
-assets/originals/       unmodified source files that are not served directly
+  content.ts                 THE entry point for editable data: getWeeklyMenus, getStandingOfferGroups, getOpeningHours, getContactInfo
+  site-types.ts, menu-types.ts   content contracts used by components (never Sanity documents directly)
+  hours.ts                   pure opening-hours logic (exceptions, next opening, summaries, notices)
+  weekly-menu.ts             pure menu selection (current / upcoming / none) and formatters
+  cafe.ts                    code-managed identity (name, owner), Berlin date, tel: and directions helpers
+  offers.ts                  offer side note (time cue / price)
+  contact/                   validation, config gate, handler, e-mail text, Resend adapter, rate limit, form state
+sanity/
+  env.ts                     project ID / dataset / API version from env; isSanityConfigured
+  schemaTypes/               weeklyMenu, standingOffers, openingHours, contactInfo (+ index with singleton IDs)
+  structure.ts               the four German Studio entries
+  validation.ts              pure validation rules used by the schemas (unit-tested)
+  lib/client.ts, queries.ts, mappers.ts   read-only client, GROQ, document → content-type mapping
+  seed/initial-content.ndjson   controlled initial import (verified legacy facts, no weekly menu)
+sanity.config.ts, sanity.cli.ts
+data/                        verified legacy fixtures: used only when Sanity is not configured, and as seed content
+tests/                       vitest suites (network blocked in setup.ts)
 ```
 
 ## Routes
-| Route | Status (M2) | Composition |
+| Route | Status | Notes |
 |---|---|---|
-| `/` | Complete (M1.5) | Cover hero + Heute panel, menu card, offer board, photo collage, dark visit band |
-| `/speisekarte` | Complete | Typographic masthead with serving times, menu card, standing offers grouped under one wide counter photo, pre-order band |
-| `/ueber-uns` | Complete (short by design) | Opening: text beside one complete photo (native 16:9, no crop); separate "Rundgang" section; filmstrip of laid tables; sign-off with the café's own tagline |
-| `/kontakt` | Complete (form not sending) | Split page: ways to reach the café on the ivory page (left), form on a warm-white sheet running to the viewport edge (right); first field in the first desktop viewport |
-| `/impressum` | Stub | Marked as unapproved draft, provider facts only |
-| `/datenschutz` | Stub | "In Vorbereitung" |
-
-No navigation link is dead; the two legal stubs say they are unfinished.
+| `/` | Complete | Hero + Heute panel, menu card, offer board (CMS offers, flattened), collage, visit band |
+| `/speisekarte` | Complete | Masthead with CMS breakfast/lunch times, menu card, grouped CMS offers, pre-order band |
+| `/ueber-uns` | Complete | Editorial copy in code; address/phone from CMS |
+| `/kontakt` | Complete | CMS contact + hours; form sends only when the delivery gate is open |
+| `/impressum`, `/datenschutz` | Stubs | Clearly marked as not legally approved |
+| `/admin` | CMS | Embedded Studio when configured; otherwise a German "not connected" notice. `noindex`. |
 
 ## Content boundaries
-| Kind | Lives in | Editable later via |
+| Content | Source of truth | Editable by staff |
 |---|---|---|
-| Weekly menus | `data/weekly-menus.ts` | Sanity (M3) |
-| Standing offers | `data/standing-offers.ts` | Sanity (M3), only with real item data from the café |
-| Opening hours, phone, address | `lib/cafe.ts` | Sanity (M3), plus closure/holiday notices |
-| Editorial copy, photos, logo, layout, legal texts | page files, `public/images` | stays in code |
-| Contact messages | not stored anywhere | M3 server action sends e-mail only |
+| Weekly menus | Sanity `weeklyMenu` documents | yes |
+| Standing food & drink offers | Sanity `standingOffers` (singleton) | yes |
+| Opening hours, holidays, special hours, notice, breakfast/lunch times | Sanity `openingHours` (singleton) | yes |
+| Phone, public e-mail, address | Sanity `contactInfo` (singleton) | yes |
+| Café name, owner, logo, photos, editorial copy, layout, design, navigation, legal texts | code | no |
+| Contact-form sender, recipient, API keys | server environment variables | no (deliberately not in Sanity) |
+| Contact messages | not stored anywhere; e-mailed only | – |
 
-## Weekly menu model
-- `WeeklyMenu { validFrom, validTo, days[], notes[] }`. A day has `date`, optional `closed`, optional `note`, and any number
-  of dishes; a dish has `name`, optional `priceEur`, optional `note`. Weeks may list fewer or more than five days.
-- `selectWeeklyMenu(menus, today)` returns `current` (window contains today), else `upcoming` (earliest future week, shown
-  with a visible "Vorschau" label and no "heute" marker), else `none` (fallback text naming when the last week ended).
-  Expired weeks are never returned. Checked with a date-case table and with a rendered build using an expired week (M2).
-- `WeeklyMenuView` is a pure component that takes a selection, so the Sanity switch only replaces `getWeeklyMenus()`.
+### Fallback rules (`lib/content.ts`)
+- **Sanity not configured** (no/invalid `NEXT_PUBLIC_SANITY_*`): verified legacy fixtures from `data/`. This keeps
+  development and preview builds working; it is not a "connected" state and `/admin` says so.
+- **Sanity configured:** Sanity is authoritative. If a singleton (hours, contact, offers) has not been published yet, the
+  verified legacy values are shown until it is. **Weekly menus are never substituted:** no published week means the
+  "no menu" state. Query **errors are thrown**, so Next keeps serving the last good cached page at runtime and a
+  build fails loudly instead of publishing guessed data.
 
-## Rendering and time-sensitive data
-- Server Components everywhere; `NavLinks` is a client component only for `aria-current` (links work without JS).
-- With Cache Components, `new Date()` must be inside `"use cache"` or behind `io()`. `WeeklyMenu`, `TodayPanel` and
-  `OpeningHours` are `"use cache"` components with short `cacheLife` (revalidate 15 min / 10 min, expire 1 h), so pages stay static/prerendered
-  but the date logic re-runs regularly — an expired weekly plan disappears without a rebuild.
-- All date logic uses **Europe/Berlin** (`berlinToday()`), independent of server time zone.
+## Sanity integration
+- Embedded Studio per the official `next-sanity` guide (`[[...tool]]` catch-all, `'use client'` config,
+  `next-sanity/studio` metadata/viewport). Without `export const dynamic = 'force-static'`, which is not allowed
+  with Cache Components and unnecessary: the route is prerendered and the Studio loads its data in the browser.
+- The `(studio)` route group has no site CSS or chrome; the `(site)` group never loads Studio code. Measured on the
+  production build: public pages ≈ 580 KB uncompressed JS with 0 Sanity chunks; `/admin` ≈ 6.2 MB.
+- **Studio structure:** Wochenkarte (list, newest first), Speisen & Getränke, Öffnungszeiten & Urlaub, Kontaktdaten.
+  Singletons have fixed IDs, cannot be created twice, duplicated or deleted (document actions limited to publish,
+  discard, restore). German UI via `@sanity/locale-de-de`; no Vision/query tool.
+- **This is navigation, not access control.** On Sanity Free every member who can publish is effectively an
+  administrator (can see project settings, invite members, delete documents via the API). Mitigations: one personal
+  account per person, strong passwords + 2FA on the login provider, no shared logins, regular dataset exports (below).
+- **Validation (in the Studio):** required fields; HH:MM times with close after open; date ranges in order; menu days
+  inside the week and unique; prices 0–999 € with ≤ 2 decimals; five-digit postcode; phone characters; e-mail format;
+  **no two published weeks may overlap** (async check against published documents).
+- **New-week template:** next Monday to Friday prefilled, Wednesday marked closed (the café's current pattern), the
+  three standard notes prefilled; everything editable.
+- **Future menus:** publish ahead of time; the site shows a week automatically from `validFrom` to `validTo` (Berlin
+  dates). No scheduled-publishing feature needed.
+
+### Public queries
+GROQ in `sanity/lib/queries.ts`, published perspective, no token: weekly menus ending within the last 6 weeks or later
+(enough for the "last menu ended on …" hint); the three singletons by fixed ID. `sanity/lib/mappers.ts` turns results into
+`WeeklyMenu`, `StandingOfferGroup[]`, `OpeningHoursData`, `ContactInfo`, dropping incomplete entries instead of inventing
+values (e.g. special hours without times count as closed; hidden offers and empty groups are omitted).
+
+## Caching and freshness
+- One profile, `cms` = `{ stale: 60, revalidate: 120, expire: 3600 }` seconds, used by every data function and by the
+  date-dependent components (`WeeklyMenu`, `TodayPanel`, `OpeningHours`). Pages stay prerendered; after 2 minutes the next
+  request refreshes in the background.
+- **Published changes appear within about 2–3 minutes** (2 min revalidation + Sanity API CDN propagation + up to 60 s
+  client router cache). Date changes (new day, expired week, holiday start) follow the same rhythm.
+- No webhooks, so no endpoint to secure. Time-based revalidation is enough for a café; if instant updates are ever
+  needed, add a signed Sanity webhook (`next-sanity/webhook` `parseBody` with a secret) calling `revalidateTag`.
+- API usage: each cached entry refetches at most every 2 minutes while visited, via the Sanity API CDN; far inside
+  Sanity Free quotas.
+
+## Weekly menu model and logic
+- `WeeklyMenu { validFrom, validTo, days[], notes[] }`; day `{ date, closed?, note?, dishes[] }`; dish
+  `{ name, description?, priceEur? }`. Any number of days and dishes.
+- `selectWeeklyMenu` → `current` | `upcoming` (labelled "Vorschau", no "heute" marker) | `none` (names when the last
+  week ended). Expired weeks are never returned. Berlin calendar dates via `berlinToday()`.
+
+## Opening hours logic
+- Effective hours for a date = matching exception (holiday closure or special hours; later entries win) else the
+  weekday pattern. Used by the Heute panel ("Heute geschlossen (Betriebsurlaub). Wieder geöffnet am …") and the hours
+  list, which also shows the active notice and exceptions in the next 21 days. Today's dishes only show when the café
+  is actually open today.
+
+## Contact form backend
+- **Flow:** `ContactForm` (client) → server action `app/(site)/kontakt/actions.ts` → `handleContactSubmission`
+  (`lib/contact/handle.ts`) → `sendViaResend` (REST via `fetch`, no SDK). Nothing is stored.
+- **Delivery gate** (`lib/contact/config.ts`): sends only if `CONTACT_FORM_ENABLED === "true"` and `RESEND_API_KEY`
+  (`re_…`), `CONTACT_FROM_EMAIL` (one mailbox, optional display name with balanced brackets) and `CONTACT_TO_EMAIL`
+  (exactly one address) are valid. The page reads the gate on the server and passes only a boolean to the form. The env
+  is read at build/render time, so changing it requires a redeploy.
+- **Validation (server, authoritative):** required name/e-mail/message/privacy; e-mail format; limits name 100,
+  e-mail 200, subject 150, message 10–2000; NFC normalisation; control characters removed; line breaks removed from
+  single-line fields (header-injection guard); non-text values (e.g. files) rejected explicitly, never dropped.
+- **E-mail:** plain text only, fixed subject prefix "Kontaktformular Website:", source line, all fields; visitor address
+  only as `Reply-To`, sender is the configured verified identity. No auto-reply to visitors.
+- **Spam/abuse:** honeypot field (`website`, off-screen, `aria-hidden`, any non-empty value rejected without sending and
+  without claiming success); rate limit 5 per 10 minutes per client (SHA-256-hashed IP from `x-forwarded-for`/`x-real-ip`).
+  - With `UPSTASH_REDIS_REST_URL/TOKEN`: shared across instances. If Upstash is down or answers malformed, the
+    per-instance limiter applies instead (never "no limit").
+  - Without Upstash: per-instance memory only. **On serverless hosting this is not reliable protection** (each instance
+    and cold start has its own counter). Recommended before go-live: Upstash (free tier) or the host's firewall rules.
+  - The client IP comes from proxy headers. Vercel sets these itself; on other hosts confirm the proxy overwrites them.
+  - No CAPTCHA and no third-party scripts by default.
+- **Duplicate submissions:** button disabled while pending; a per-message request id is sent as Resend
+  `Idempotency-Key`; an unedited retry reuses it with an identical payload (no timestamp in the body), any edit starts a
+  new id. Without JavaScript no id is sent.
+- **States:** "success" only after Resend returns a message id (acceptance, not proof of inbox delivery; the copy says
+  "abgeschickt"); errors keep the visitor's input and offer the phone number; status is a focused `role="status"` region.
+- **Logging:** event codes only (`sent`, `disabled`, `honeypot`, `rate_limited`, `rate_limiter_unavailable`,
+  `send_failed` + HTTP status). Never names, addresses, message text or keys.
+- **Security review:** a read-only Codex review (M3) found four issues (limiter fail-open, idempotency payload drift,
+  silently dropped oversized fields, loose config address checks); all fixed and covered by regression tests.
+
+## Environment variables
+See `.env.example` (names and explanations only). Public: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`,
+optional `NEXT_PUBLIC_SANITY_API_VERSION`. Server-only secrets: `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`,
+`CONTACT_TO_EMAIL`, `CONTACT_FORM_ENABLED`, optional `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
+No Sanity token is needed (published content is read anonymously). Checked: no secret names in browser chunks.
+
+## Setup steps that need the owner (not done; no accounts were created)
+1. **Sanity:** create a free account and project at sanity.io/manage (dataset `production`, public), set the two
+   `NEXT_PUBLIC_SANITY_*` variables locally and on the host, then add CORS origins with credentials:
+   `npx sanity cors add http://localhost:3000 --credentials` and the production URL. Studio schemas need no deploy step.
+2. **Initial content (needs explicit approval, writes to the real dataset):**
+   `npx sanity dataset import sanity/seed/initial-content.ndjson production --missing`
+   (`--missing` skips documents that already exist: no overwrites, no duplicates). Then add the first weekly menu in the Studio.
+3. **Members:** invite each staff member with their own login (sanity.io/manage → Members).
+4. **Resend:** create an account, verify a sending domain the operator controls (DNS records: needs approval), create a
+   sending-only API key, choose the sender address; confirm the café recipient inbox.
+5. **Host env:** set the variables from `.env.example`; set `CONTACT_FORM_ENABLED=true` only after an approved test
+   message to a clearly identified test inbox.
+6. **Rate limiting:** optionally create an Upstash Redis database and set its REST URL/token.
+
+## Backup and recovery
+- Sanity keeps document history (restore earlier versions in the Studio; retention per plan).
+- Regular exports (e.g. monthly and before larger changes): `npx sanity dataset export production backup-YYYY-MM-DD.tar.gz`,
+  stored outside Sanity. Restore with `npx sanity dataset import <file> production --replace` (deliberately, after review).
+- Code, schemas, images and seed content are in Git.
 
 ## Design system implementation
 - Tokens from `DESIGN.md` as CSS custom properties (colours, fluid type scale `--step-*`, spacing, radius 3 px, 180 ms motion).
-- Type: **Newsreader** (serif, headings, weekday names, prices context) + **DM Sans** (body/UI). Variable woff2, latin subset
-  (includes umlauts, ß, €), via `next/font/local` — no request to Google at build or runtime. Licence: SIL OFL 1.1, files from
-  `@fontsource-variable/*@5.3.0`, licence text in `app/fonts/OFL-*.txt`.
-- Signature element: the dated **Wochenkarte** set like a printed menu card with today's row highlighted.
-- Identity motif: italic Newsreader for every time cue (dates, hours, "Heute"), the menu-card voice repeated across sections.
-- Homepage composition (M1.5): each section has its own layout. Cover hero (two-line headline over the wall-logo photo at
-  native 1200 px, 2:1 crop desktop / 4:3 mobile, address as figcaption) with a `TodayPanel` (today's hours, today's dish
-  from the valid weekly plan, or next opening on Ruhetag); menu card; text-only offer board; asymmetric two-photo
-  collage for events; one dark espresso band for visit details. No eyebrows, no coloured side stripes, no card grids.
-- Motion (M1.5): one authored moment only, the hero entrance (headline/intro rise, photo unveiled via `clip-path`,
-  700–1000 ms, `cubic-bezier(0.16, 1, 0.3, 1)`), wrapped in `prefers-reduced-motion: no-preference` so content is static
-  and visible otherwise. Supporting feedback: nav underline grows on hover (`transform: scaleX`), button press offset,
-  colour transitions 180 ms. No scroll-triggered animation, no motion library.
-- Buttons: one solid primary, one outlined quiet variant (`.button`, `.button-quiet`); 48 px min touch height.
-- Accessibility basics: skip link, visible `:focus-visible` ring, `aria-current` on nav and today's menu row,
-  semantic `dl`/`ol`/`address`, descriptive German alt texts, `prefers-reduced-motion` respected, no motion beyond hover colour.
-- Mobile: header is logo + phone on row one, a plain horizontal nav row below (3 links) — no JS menu toggle needed.
+- Type: **Newsreader** + **DM Sans**, self-hosted variable woff2 (SIL OFL 1.1, `app/fonts/OFL-*.txt`), no Google requests.
+- Signature element: the dated Wochenkarte as a printed menu card; italic Newsreader for every time cue.
+- Each page section has its own composition (no repeated card grids). One authored motion moment (homepage hero entrance),
+  CSS only, disabled under `prefers-reduced-motion`.
+- Accessibility basics: skip link, visible focus ring, `aria-current` for nav and today, semantic lists, German alt texts.
 
 ## Images
-- Statically imported from `public/images` → `next/image` gets intrinsic sizes, blur placeholders, responsive `srcset`, AVIF/WebP.
-- Sources are ≤1200 px wide, so layouts never stretch them full-bleed on large screens. Originals are never modified;
-  only the logo got a trimmed derivative and the favicon a crop (see inventory).
-- No hotlinking; no third-party or stock imagery.
+- Statically imported from `public/images` → `next/image` (intrinsic sizes, blur placeholders, AVIF/WebP). Sources ≤ 1200 px.
+  Originals unmodified; only the logo trim and favicon crop are derivatives. No hotlinking or stock imagery. Not CMS-editable.
 
-## Later milestones (planned, not implemented)
-### Sanity CMS at `/admin` (M3)
-- Sanity Free project, embedded Studio via `next-sanity` on a catch-all route `app/admin/[[...tool]]`.
-- Schemas limited to: `weeklyMenu` (validFrom/validTo, days, dishes, prices, closed flag, notes), `standingOffer`
-  (category, items, prices, availability — only where the café supplies real data), `openingHours` + `closureNotice`
-  (date ranges), `contactInfo` (phone, e-mail, address) as a singleton.
-- `lib/cafe.ts` and `lib/weekly-menu.ts` become typed fetchers with the same shapes; components stay unchanged.
-  Revalidation via `cacheTag` + a Sanity webhook calling `revalidateTag`, plus the existing short `cacheLife` as a safety net.
-- Simplified Studio structure is a UX convenience only; it is **not** an authorisation boundary on Sanity Free.
-- Logo, photos, editorial copy, layout and legal texts stay in the repository.
+## Testing
+`npm test` (vitest): opening-hours logic incl. exceptions and Berlin midnight, menu selection, Sanity mappers and validation
+rules, seed file = verified fixtures, contact validation/gate/handler/Resend adapter/limiters with mocked fetch. A global
+`fetch` stub makes any real network call fail the test, so tests cannot send e-mail.
 
-### Contact form (M2 frontend done, sending later)
-- M2 state: `components/ContactForm.tsx` renders labelled fields (`name`, `email`, optional `subject`, `message`, `privacy`),
-  validates on blur with German messages (`aria-invalid`, `aria-describedby`, polite live region), and has no action and a
-  disabled submit button in the server HTML (`SUBMISSION_ENABLED = false`), plus a visible notice with the phone number.
-  Nothing is sent or stored; `onSubmit` also calls `preventDefault()` so no data can reach a URL.
-- Next: Server Action (or Route Handler) with server-side validation (e.g. zod), honeypot + rate limiting, privacy-acknowledgement
-  checkbox, accessible error/success states, progressive enhancement (works without JS).
-- Delivery through a transactional e-mail provider (to be chosen; EU data processing preferred) using env-var credentials,
-  verified sender domain, `Reply-To` = visitor. No message database. No real sends until recipient + provider are approved.
-
-## Deferred decisions / open items
-- JSON-LD `CafeOrCoffeeShop` structured data and `metadataBase`/Open Graph image: deferred until facts and domain are confirmed (M6).
-- `robots: noindex` is set globally on purpose; flip at approved go-live (M7).
-- Holiday/closure notices: `TodayPanel` and `OpeningHours` know only the weekly pattern; closures arrive with Sanity (M3).
-- Hosting (Vercel plan), domain, e-mail provider: pending owner decisions.
+## Open items
+- Privacy acknowledgement wording and the Datenschutzerklärung (Resend, Sanity, hosting as processors) need legal review.
+- Structured data, `metadataBase`/OG image: M6. `robots: noindex` stays until approved go-live (M7).
+- `npm audit`: 3 high advisories (`js-yaml`, `smol-toml`, `undici`) in Sanity's CLI tooling tree (`@sanity/cli`), not on
+  the public request path; fix requires a Sanity upgrade, re-check when updating.

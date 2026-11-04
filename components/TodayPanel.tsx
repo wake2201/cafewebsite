@@ -1,24 +1,27 @@
 import { cacheLife } from "next/cache";
-import { berlinToday, cafe, nextOpenDay, openingHours, weekdayNames } from "@/lib/cafe";
-import { formatPrice, getActiveWeeklyMenu, getWeeklyMenus } from "@/lib/weekly-menu";
+import { berlinToday } from "@/lib/cafe";
+import { getOpeningHours, getWeeklyMenus } from "@/lib/content";
+import { addDays, formatRange, hoursForDate, nextOpening, weekdayNames } from "@/lib/hours";
+import { formatDayMonth, formatPrice, getActiveWeeklyMenu } from "@/lib/weekly-menu";
 import styles from "./TodayPanel.module.css";
 
 /**
- * "Heute" summary for the hero: today's hours, today's lunch from the dated weekly plan
- * (only while that plan is valid), or the next opening on a rest day.
- * Weekly pattern only; holiday closures arrive with the CMS in Milestone 3.
+ * "Heute" summary for the hero: today's effective hours (holiday closures and special hours
+ * override the weekly pattern), today's lunch from the valid weekly menu, or the next opening.
  */
 export async function TodayPanel() {
   "use cache";
-  cacheLife({ stale: 300, revalidate: 600, expire: 3600 });
+  cacheLife("cms");
 
   const today = berlinToday();
-  const hours = openingHours[today.weekday];
-  const menuDay = getActiveWeeklyMenu(await getWeeklyMenus(), today.isoDate)?.days.find(
-    (day) => day.date === today.isoDate,
-  );
+  const [hoursData, menus] = await Promise.all([getOpeningHours(), getWeeklyMenus()]);
+  const { hours, exception } = hoursForDate(hoursData, today.isoDate);
+  const menuDay = hours
+    ? getActiveWeeklyMenu(menus, today.isoDate)?.days.find((day) => day.date === today.isoDate)
+    : undefined;
   const dishes = menuDay && !menuDay.closed ? menuDay.dishes : [];
-  const next = hours ? null : nextOpenDay(today.weekday);
+  const next = hours ? null : nextOpening(hoursData, today.isoDate);
+  const closedLabel = exception?.closed ? `Heute geschlossen${exception.reason ? ` (${exception.reason})` : ""}.` : "Ruhetag.";
 
   return (
     <section className={styles.panel} aria-labelledby="heute">
@@ -27,17 +30,33 @@ export async function TodayPanel() {
       </h2>
       {hours ? (
         <p className={styles.line}>
-          Geöffnet <span className={styles.time}>{hours.open} – {hours.close} Uhr</span>
+          {exception ? "Heute geänderte Zeiten:" : "Geöffnet"}{" "}
+          <span className={styles.time}>{formatRange(hours)}</span>
+          {exception?.reason ? <> ({exception.reason})</> : null}
         </p>
       ) : (
         <p className={styles.line}>
-          Ruhetag. Wieder geöffnet am {weekdayNames[next!.weekday]}{" "}
-          <span className={styles.time}>ab {next!.hours.open} Uhr</span>
+          {closedLabel}
+          {next ? (
+            <>
+              {" "}
+              Wieder geöffnet am {weekdayNames[next.weekday]}
+              {/* Beyond six days, or after a closure, name the date so "am Montag" is never ambiguous. */}
+              {next.date > addDays(today.isoDate, 6) || exception ? `, ${formatDayMonth(next.date)},` : ""}{" "}
+              <span className={styles.time}>ab {next.hours.open} Uhr</span>
+            </>
+          ) : null}
         </p>
       )}
       {dishes.length > 0 ? (
         <p className={styles.line}>
-          Mittagstisch <span className={styles.time}>{cafe.lunch.from} – {cafe.lunch.to} Uhr</span>
+          Mittagstisch
+          {hoursData.lunch ? (
+            <>
+              {" "}
+              <span className={styles.time}>{formatRange(hoursData.lunch)}</span>
+            </>
+          ) : null}
           {dishes.map((dish) => (
             <span key={dish.name} className={styles.dish}>
               {dish.name}

@@ -3,14 +3,18 @@ import Link from "next/link";
 import { OpeningHours } from "@/components/OpeningHours";
 import { TodayPanel } from "@/components/TodayPanel";
 import { WeeklyMenu } from "@/components/WeeklyMenu";
-import { standingOffers as offers } from "@/data/standing-offers";
 import { cafe } from "@/lib/cafe";
+import { getContactInfo, getStandingOfferGroups } from "@/lib/content";
+import { offerAside } from "@/lib/offers";
 import gastraum from "@/public/images/cafe/gastraum-mit-wandlogo.jpg";
 import festtafel from "@/public/images/feiern/festtafel-an-der-fensterfront.jpg";
 import kaffeetafel from "@/public/images/feiern/kaffeetafel-am-fenster.jpg";
 import styles from "./page.module.css";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [contact, groups] = await Promise.all([getContactInfo(), getStandingOfferGroups()]);
+  // The homepage board shows the same CMS offers as the Speisekarte, as one list.
+  const offers = groups.flatMap((group) => group.offers);
   return (
     <>
       <section className={styles.hero} aria-labelledby="hero-title">
@@ -44,7 +48,7 @@ export default function HomePage() {
               />
             </div>
             <figcaption className={styles.caption}>
-              Der Gastraum in der {cafe.address.street}, {cafe.address.city}
+              Der Gastraum in der {contact.address.street}, {contact.address.city}
             </figcaption>
           </figure>
         </div>
@@ -66,8 +70,8 @@ export default function HomePage() {
             {offers.map((offer) => (
               <li key={offer.title} className={styles.boardRow}>
                 <span className={styles.boardTitle}>{offer.title}</span>
-                <span className={styles.boardDetail}>{offer.detail}</span>
-                {offer.when ? <span className={styles.boardWhen}>{offer.when}</span> : null}
+                {offer.detail ? <span className={styles.boardDetail}>{offer.detail}</span> : null}
+                {offerAside(offer) ? <span className={styles.boardWhen}>{offerAside(offer)}</span> : null}
               </li>
             ))}
           </ul>
@@ -95,8 +99,8 @@ export default function HomePage() {
             </p>
             <p>
               Sprechen Sie uns für Ihren Termin einfach an:{" "}
-              <a href={cafe.phone.href} className={styles.inlinePhone}>
-                {cafe.phone.display}
+              <a href={contact.phone.href} className={styles.inlinePhone}>
+                {contact.phone.display}
               </a>
             </p>
           </div>
@@ -125,12 +129,12 @@ export default function HomePage() {
             <address className={styles.address}>
               {cafe.name}
               <br />
-              {cafe.address.street}
+              {contact.address.street}
               <br />
-              {cafe.address.postalCode} {cafe.address.city}
+              {contact.address.postalCode} {contact.address.city}
             </address>
             <p>
-              <a href={cafe.directionsUrl} rel="noopener" target="_blank">
+              <a href={contact.directionsUrl} rel="noopener" target="_blank">
                 Route in Google Maps öffnen
                 <span className="visually-hidden"> (öffnet in neuem Tab)</span>
               </a>
@@ -139,8 +143,8 @@ export default function HomePage() {
           <div className={styles.visitBlock}>
             <h3 className={styles.visitLabel}>Telefon</h3>
             <p>
-              <a href={cafe.phone.href} className={styles.visitPhone}>
-                {cafe.phone.display}
+              <a href={contact.phone.href} className={styles.visitPhone}>
+                {contact.phone.display}
               </a>
             </p>
             <p className={styles.visitNote}>Vorbestellungen und Fragen gern telefonisch.</p>

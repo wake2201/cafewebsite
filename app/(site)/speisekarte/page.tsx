@@ -2,18 +2,24 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { WeeklyMenu } from "@/components/WeeklyMenu";
-import { standingOfferGroups } from "@/data/standing-offers";
-import { cafe } from "@/lib/cafe";
+import { getContactInfo, getOpeningHours, getStandingOfferGroups } from "@/lib/content";
+import { formatRange } from "@/lib/hours";
+import { offerAside } from "@/lib/offers";
 import theke from "@/public/images/cafe/theke-mit-kuchen.jpg";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Speisekarte",
   description:
-    "Wochenkarte mit Mittagstisch von 11:30 bis 14:00 Uhr, Frühstück ab 8 Uhr, Kaffee, Tee und hausgebackener Kuchen im Café am Lindenplatz in Zeitz.",
+    "Wochenkarte mit wechselndem Mittagstisch, Frühstück, Kaffee, Tee und hausgebackener Kuchen im Café am Lindenplatz in Zeitz.",
 };
 
-export default function SpeisekartePage() {
+export default async function SpeisekartePage() {
+  const [contact, hours, standingOfferGroups] = await Promise.all([
+    getContactInfo(),
+    getOpeningHours(),
+    getStandingOfferGroups(),
+  ]);
   return (
     <>
       <header className={`container ${styles.masthead}`}>
@@ -21,18 +27,22 @@ export default function SpeisekartePage() {
         <p className={styles.lede}>
           Jede Woche eine neue Mittagskarte, dazu Frühstück, Kaffee, Tee und Kuchen aus eigener Herstellung.
         </p>
-        <dl className={styles.times}>
-          <div>
-            <dt>Frühstück</dt>
-            <dd>ab {cafe.breakfastFrom} Uhr</dd>
-          </div>
-          <div>
-            <dt>Mittagstisch</dt>
-            <dd>
-              {cafe.lunch.from} – {cafe.lunch.to} Uhr
-            </dd>
-          </div>
-        </dl>
+        {hours.breakfastFrom || hours.lunch ? (
+          <dl className={styles.times}>
+            {hours.breakfastFrom ? (
+              <div>
+                <dt>Frühstück</dt>
+                <dd>ab {hours.breakfastFrom} Uhr</dd>
+              </div>
+            ) : null}
+            {hours.lunch ? (
+              <div>
+                <dt>Mittagstisch</dt>
+                <dd>{formatRange(hours.lunch)}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
       </header>
 
       <WeeklyMenu />
@@ -61,8 +71,8 @@ export default function SpeisekartePage() {
                   {group.offers.map((offer) => (
                     <li key={offer.title} className={styles.offer}>
                       <span className={styles.offerTitle}>{offer.title}</span>
-                      {offer.when ? <span className={styles.offerWhen}>{offer.when}</span> : null}
-                      <span className={styles.offerDetail}>{offer.detail}</span>
+                      {offerAside(offer) ? <span className={styles.offerWhen}>{offerAside(offer)}</span> : null}
+                      {offer.detail ? <span className={styles.offerDetail}>{offer.detail}</span> : null}
                     </li>
                   ))}
                 </ul>
@@ -86,8 +96,8 @@ export default function SpeisekartePage() {
               Vorbestellungen rufen Sie uns am besten an.
             </p>
             <p className={styles.orderActions}>
-              <a href={cafe.phone.href} className="button">
-                Anrufen: {cafe.phone.display}
+              <a href={contact.phone.href} className="button">
+                Anrufen: {contact.phone.display}
               </a>
               <Link href="/kontakt" className={styles.orderLink}>
                 Öffnungszeiten und Anfahrt
