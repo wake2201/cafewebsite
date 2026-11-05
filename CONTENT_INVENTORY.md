@@ -54,7 +54,7 @@ Legacy table on `/index.php/speisekarte`, headed **"Speisekarteplan vom 02.11. -
 Notes on the page: "Änderungen vorbehalten!", "Speisen auch zum mitnehmen, sowie auch Vorbestellungen!", "Bei Fragen zu Allergenen und Zusatzstoffen wenden Sie sich bitte an unser Personal."
 
 - **Ambiguity:** the table has no weekday labels except the Wednesday row. Weekdays are inferred from row order. Confirm with the café.
-- **Staleness rule implemented:** `lib/weekly-menu.ts` stores `validFrom/validTo`; the component only shows it while today (Europe/Berlin) is inside that window, otherwise it shows a "not yet entered — please call" notice naming the last known period. The homepage revalidates every 10 min, so this needs no rebuild. **After 2026-11-06 the site will correctly stop showing this plan**; a new week requires either a code edit (now) or Sanity (Milestone 3).
+- **Staleness rule implemented:** `lib/weekly-menu.ts` stores `validFrom/validTo`; the component only shows it while today (Europe/Berlin) is inside that window, otherwise it shows a "not yet entered — please call" notice naming the last known period. Since Milestone 3 the weekly menu comes from Sanity only (this table is a development fixture), refreshed about every 2 minutes (cache profile `cms`), so no rebuild is needed.
 
 ## 4. Asset inventory
 
@@ -136,8 +136,8 @@ Note: `cafe_02.jpg` shows a chalkboard "Hausgemachter Kartoffelsalat mit Bockwur
 
 ## 8. CMS migration (Milestone 3)
 - `sanity/seed/initial-content.ndjson` contains only verified legacy facts: contact details (§1), regular opening hours
-  with Mittwoch Ruhetag, breakfast/lunch times, and the seven standing offer categories (§2, item 8 excluded) in three
-  groups. A unit test checks it is identical to the fixtures in `data/`.
+  with Mittwoch Ruhetag, breakfast/lunch times, and the standing offer categories (§2, item 8 excluded) as six entries in
+  three groups (items 3 and 4 are one "Mittagstisch" entry, see §6.8). A unit test checks it is identical to the fixtures in `data/`.
 - **Not imported:** any weekly menu (the 2.–6. November 2026 week stays a development fixture only), the public e-mail
   address (not yet approved, §6.5), "Festlichkeiten bis 30 Personen" (unconfirmed, §6.6), prices (none in the source).
 - The import has not been run: it needs a Sanity project and explicit approval.

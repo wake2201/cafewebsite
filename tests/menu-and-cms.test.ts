@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { berlinToday } from "@/lib/cafe";
+import { addDays } from "@/lib/hours";
 import type { WeeklyMenu } from "@/lib/menu-types";
 import { selectWeeklyMenu } from "@/lib/weekly-menu";
 import { mapContactInfo, mapOpeningHours, mapStandingOffers, mapWeeklyMenus } from "@/sanity/lib/mappers";
 import {
   rangesOverlap,
   validateMenuDays,
+  validateMenuSpan,
   validatePrice,
   validateTime,
   validateTimeRange,
@@ -127,6 +130,47 @@ describe("Studio validation rules", () => {
   it("detects overlapping weeks", () => {
     expect(rangesOverlap("2026-11-02", "2026-11-06", "2026-11-06", "2026-11-10")).toBe(true);
     expect(rangesOverlap("2026-11-02", "2026-11-06", "2026-11-07", "2026-11-13")).toBe(false);
+  });
+
+  it("warns (without blocking) when a week runs into the next week", () => {
+    expect(validateMenuSpan("2026-11-02", "2026-11-06")).toBe(true);
+    expect(validateMenuSpan("2026-11-02", "2026-11-08")).toBe(true); // Monday to Sunday
+    // The live production week on 2026-11-05 (Monday 2.11. to Monday 9.11.).
+    expect(validateMenuSpan("2026-11-02", "2026-11-09")).toMatch(/8 Tage \(bis 9\.11\.2026\)/);
+    expect(validateMenuSpan(undefined, "2026-11-09")).toBe(true);
+    expect(validateMenuSpan("2026-11-09", "2026-11-02")).toBe(true); // order error is reported elsewhere
+    // A 2.–9.11. week does block a week starting 9.11., which is why the warning exists.
+    expect(rangesOverlap("2026-11-02", "2026-11-09", "2026-11-09", "2026-11-13")).toBe(true);
+  });
+});
+
+describe("date boundaries (deterministic, Europe/Berlin)", () => {
+  const menus = [week("2026-11-02", "2026-11-06"), week("2026-11-09", "2026-11-13")];
+  const at = (utc: string) => selectWeeklyMenu(menus, berlinToday(new Date(utc)).isoDate);
+
+  it("keeps the week current until Berlin midnight after its last day, then switches", () => {
+    expect(at("2026-11-06T22:59:59Z")).toMatchObject({ status: "current", menu: { validFrom: "2026-11-02" } }); // Fr 23:59 CET
+    expect(at("2026-11-06T23:00:00Z")).toMatchObject({ status: "upcoming", menu: { validFrom: "2026-11-09" } }); // Sa 00:00 CET
+    expect(at("2026-11-08T23:00:00Z")).toMatchObject({ status: "current", menu: { validFrom: "2026-11-09" } }); // Mo 00:00 CET
+    expect(at("2026-11-13T23:00:00Z")).toEqual({ status: "none", lastValidTo: "2026-11-13" });
+  });
+
+  it("rolls over correctly on daylight-saving change days", () => {
+    // 2026-03-29: clocks go forward at 02:00 CET (01:00 UTC); 2026-10-25: back at 03:00 CEST (01:00 UTC).
+    expect(berlinToday(new Date("2026-03-28T22:59:00Z")).isoDate).toBe("2026-03-28");
+    expect(berlinToday(new Date("2026-03-28T23:00:00Z"))).toEqual({ isoDate: "2026-03-29", weekday: 0 });
+    expect(berlinToday(new Date("2026-03-29T21:59:00Z")).isoDate).toBe("2026-03-29"); // 23:59 CEST
+    expect(berlinToday(new Date("2026-03-29T22:00:00Z")).isoDate).toBe("2026-03-30");
+    expect(berlinToday(new Date("2026-10-24T21:59:00Z")).isoDate).toBe("2026-10-24"); // 23:59 CEST
+    expect(berlinToday(new Date("2026-10-25T22:59:00Z")).isoDate).toBe("2026-10-25"); // 23:59 CET
+    expect(berlinToday(new Date("2026-10-25T23:00:00Z")).isoDate).toBe("2026-10-26");
+  });
+
+  it("handles the year boundary", () => {
+    expect(berlinToday(new Date("2026-12-31T22:59:00Z"))).toEqual({ isoDate: "2026-12-31", weekday: 4 });
+    expect(berlinToday(new Date("2026-12-31T23:00:00Z"))).toEqual({ isoDate: "2027-01-01", weekday: 5 });
+    expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
+    expect(addDays("2027-03-28", 1)).toBe("2027-03-29"); // across a DST weekend
   });
 });
 

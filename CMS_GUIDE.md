@@ -46,6 +46,9 @@ Wichtig:
   Liegt sie noch in der Zukunft, steht sie als „Vorschau“ auf der Website, bis die Woche beginnt.
 - Nach dem letzten Tag verschwindet die Karte von selbst. Alte Karten müssen nicht gelöscht werden.
 - Zwei veröffentlichte Wochen dürfen sich nicht überschneiden. Das Programm weist Sie darauf hin.
+- **Gültig bis** ist der letzte Tag der Karte, meist der Freitag. Reicht eine Karte bis in die nächste Woche (z. B. bis
+  Montag), zeigt das Programm einen gelben Hinweis, und die Karte der nächsten Woche lässt sich erst veröffentlichen, wenn
+  das Enddatum korrigiert ist.
 
 **Korrigieren oder entfernen**
 - Karte in der Liste anklicken, ändern, **Veröffentlichen**.
@@ -112,7 +115,9 @@ betreut.
 - **Rote Hinweise im Formular**: Das Programm erklärt, was fehlt oder falsch ist (z. B. Uhrzeit im Format 08:00, Preis mit
   Punkt). Korrigieren, dann lässt sich veröffentlichen.
 - **Versehentlich etwas geändert oder gelöscht**: oben rechts auf das **Uhr-Symbol (Verlauf)** klicken, die frühere Version
-  auswählen und **Wiederherstellen**.
+  auswählen und **Wiederherstellen**. Im kostenlosen Sanity-Tarif reicht der Verlauf nur **wenige Tage** zurück. Ältere
+  Stände kann nur die Person wiederherstellen, die die Website betreut (aus einer Sicherungskopie). Bitte Fehler deshalb
+  möglichst sofort melden.
 - **Website zeigt nach 5 Minuten noch das Alte**: Seite neu laden (bei Bedarf Strg+F5). Wurde wirklich veröffentlicht?
 - **Anmeldung klappt nicht** oder **etwas sieht auf der Website falsch aus**: bitte die Person melden, die die Website
   betreut. Nicht in den Projekteinstellungen experimentieren.

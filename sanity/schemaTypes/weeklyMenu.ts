@@ -5,6 +5,7 @@ import {
   rangesOverlap,
   validateDateOrder,
   validateMenuDays,
+  validateMenuSpan,
   validatePrice,
 } from "../validation";
 import { apiVersion } from "../env";
@@ -141,13 +142,20 @@ export const weeklyMenuType = defineType({
       fieldset: "zeitraum",
       description: "Danach automatisch ausgeblendet.",
       options: { dateFormat: "DD.MM.YYYY" },
-      validation: (rule) =>
+      validation: (rule) => [
         rule
           .required()
           .error("Bitte den letzten Tag wählen.")
           .custom((validTo: string | undefined, context) =>
             validateDateOrder((context.document as { validFrom?: string } | undefined)?.validFrom, validTo),
           ),
+        // Non-blocking hint: longer than a week is allowed (e.g. a holiday week), but usually a typo.
+        rule
+          .custom((validTo: string | undefined, context) =>
+            validateMenuSpan((context.document as { validFrom?: string } | undefined)?.validFrom, validTo),
+          )
+          .warning(),
+      ],
     }),
     defineField({
       name: "days",

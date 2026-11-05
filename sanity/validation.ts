@@ -59,6 +59,19 @@ export function validatePrice(value: number | undefined): true | string {
     : "Bitte höchstens zwei Nachkommastellen eingeben, z. B. 10.90.";
 }
 
+/**
+ * Warning (not an error) when a weekly menu runs longer than one calendar week. A "Gültig bis" that
+ * reaches into the next Monday is a likely typo, and because published weeks may not overlap it would
+ * block publishing the following week's menu.
+ */
+export function validateMenuSpan(validFrom: string | undefined, validTo: string | undefined): true | string {
+  if (!validFrom || !validTo || validTo < validFrom) return true;
+  const days = (Date.parse(`${validTo}T00:00:00Z`) - Date.parse(`${validFrom}T00:00:00Z`)) / 86_400_000;
+  return days <= 6
+    ? true
+    : `Diese Karte gilt ${days + 1} Tage (bis ${formatGermanDate(validTo)}). Bitte prüfen, ob das Enddatum stimmt: Eine Karte, die in die nächste Woche reicht, verhindert das Veröffentlichen der nächsten Wochenkarte.`;
+}
+
 /** True when the two inclusive ISO date ranges share at least one day. */
 export function rangesOverlap(aFrom: string, aTo: string, bFrom: string, bTo: string): boolean {
   return aFrom <= bTo && bFrom <= aTo;

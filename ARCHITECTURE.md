@@ -109,8 +109,9 @@ tests/                       vitest suites (network blocked in setup.ts)
 - **This is navigation, not access control.** On Sanity Free every member who can publish is effectively an
   administrator (can see project settings, invite members, delete documents via the API). Mitigations: one personal
   account per person, strong passwords + 2FA on the login provider, no shared logins, regular dataset exports (below).
-- **Validation (in the Studio):** required fields; HH:MM times with close after open; date ranges in order; menu days
-  inside the week and unique; prices 0–999 € with ≤ 2 decimals; five-digit postcode; phone characters; e-mail format;
+- **Validation (in the Studio):** required fields; HH:MM times with close after open; date ranges in order; a
+  non-blocking warning when a weekly menu spans more than 7 days (Milestone 5: the first live week was entered as
+  2.–9.11., which would block the next week); menu days inside the week and unique; prices 0–999 € with ≤ 2 decimals; five-digit postcode; phone characters; e-mail format;
   **no two published weeks may overlap** (async check against published documents).
 - **New-week template:** next Monday to Friday prefilled, Wednesday marked closed (the café's current pattern), the
   three standard notes prefilled; everything editable.
@@ -209,7 +210,9 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
 6. **Rate limiting:** optionally create an Upstash Redis database and set its REST URL/token.
 
 ## Backup and recovery
-- Sanity keeps document history (restore earlier versions in the Studio; retention per plan).
+- Sanity keeps document history (restore earlier versions in the Studio), but on **Sanity Free only for a few days**
+  (pricing page checked 2026-11-05: drafts history 3 days, complete history and managed backups not included). The
+  CLI export below is therefore the only real backup; it is the operator's responsibility.
 - Regular exports (e.g. monthly and before larger changes): `npx sanity datasets export production backup-YYYY-MM-DD.tar.gz`,
   stored outside Sanity. Restore with
   `npx sanity datasets import <file> --dataset production --replace` (deliberately, after review).
@@ -277,5 +280,8 @@ rules, seed file = verified fixtures, contact validation/gate/handler/Resend ada
 ## Open items
 - Privacy acknowledgement wording and the Datenschutzerklärung (Resend, Sanity, hosting as processors) need legal review.
 - Structured data, `metadataBase`/OG image: M6. `robots: noindex` stays until approved go-live (M7).
-- `npm audit`: 3 high advisories (`js-yaml`, `smol-toml`, `undici`) in Sanity's CLI tooling tree (`@sanity/cli`), not on
-  the public request path; fix requires a Sanity upgrade, re-check when updating.
+- `npm audit` (re-checked Milestone 5, 2026-11-05): 3 high + 24 moderate, all in Sanity CLI tooling or ESLint; none on
+  the public request path or in browser bundles. No compatible upstream fix yet. Details and exposure: `QA_REPORT.md` §D.
+- Security headers (Milestone 5): `next.config.ts` `headers()` sets nosniff, framing refused (`X-Frame-Options: DENY`
+  and CSP `frame-ancestors 'none'`), `Referrer-Policy`, `Permissions-Policy` on every route including `/admin`.
+  No full CSP yet (see `QA_REPORT.md`).
