@@ -23,6 +23,25 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  // Baseline security headers for every route, including the Studio at /admin. No page is meant to be
+  // framed (no embeds, no Sanity Presentation tool), so framing is refused (clickjacking guard for the
+  // signed-in Studio). A full Content-Security-Policy is deliberately not set here: Next's inline
+  // scripts and the Studio's styled-components need nonces or 'unsafe-inline', which is a separate,
+  // tested change. HSTS is left to the host (Vercel sets it on its domains).
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
