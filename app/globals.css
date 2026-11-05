@@ -320,6 +320,12 @@ a:hover {
   [data-reveal][data-revealed="wait"] {
     opacity: 0;
     transform: translateY(var(--reveal-offset));
+    /* A threshold element that was partly on screen when the script took over recedes softly instead of
+       vanishing; elements off screen are unaffected by this. */
+    transition:
+      opacity 220ms var(--ease),
+      transform 220ms var(--ease),
+      clip-path 220ms var(--ease);
   }
 
   [data-reveal="photo"][data-revealed="wait"] {
@@ -368,10 +374,14 @@ a:hover {
   }
 }
 
-/* The photo opens like a window; --window-inset / --window-duration let a secondary photo open quieter. */
+/*
+ * The photo opens like a window; --window-inset / --window-duration let a secondary photo open quieter.
+ * Starts from opacity 0, the hidden "wait" state, so the photo never pops to a partial opacity on
+ * trigger (or holds it through a delay).
+ */
 @keyframes reveal-window {
   from {
-    opacity: 0.4;
+    opacity: 0;
     clip-path: inset(var(--window-inset, 7% 5%) round var(--radius));
   }
   to {

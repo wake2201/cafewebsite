@@ -140,6 +140,8 @@
 @media (prefers-reduced-motion: no-preference) {
   .tourFrame[data-reveal][data-revealed="wait"] {
     transform: scale(0.95);
+    /* Same start window as tour-open, so the hidden state and the first frame match exactly. */
+    --window-inset: 4% 3%;
   }
 
   .tourFrame[data-reveal][data-revealed="animate"] {
@@ -151,7 +153,7 @@
 
 @keyframes tour-open {
   0% {
-    opacity: 0.3;
+    opacity: 0;
     clip-path: inset(4% 3% round var(--radius));
     animation-timing-function: var(--ease-out);
   }

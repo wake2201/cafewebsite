@@ -30,6 +30,17 @@ const revealedByRoute = new Map<string, Set<number>>();
 
 const introToken = (pathname: string) => (pathname === "/" ? "home" : pathname.replace(/^\/+|\/+$/g, "").replace(/\//g, "-"));
 
+/**
+ * The element's `data-reveal-at` share (0 when absent or invalid). Capped so that an element taller than
+ * a short viewport can still reach it (at most 90 % of the viewport height), rounded to keep few observers.
+ */
+const thresholdFor = (element: HTMLElement, rect: DOMRect, viewportHeight: number) => {
+  const at = Number(element.dataset.revealAt);
+  if (!Number.isFinite(at) || at <= 0 || at > 1) return 0;
+  const reachable = rect.height > 0 ? (0.9 * viewportHeight) / rect.height : 1;
+  return Math.max(0.05, Math.floor(Math.min(at, reachable) * 100) / 100);
+};
+
 /** Laid out (not inside a hidden route copy or another display:none subtree). */
 const isRendered = (element: Element) => element.getClientRects().length > 0;
 
@@ -66,10 +77,13 @@ export function RevealObserver() {
       element.dataset.revealed = "done";
     };
 
+    // Effective visibility threshold per observed element (0 = default top-edge trigger).
+    const thresholdOf = new Map<Element, number>();
+
     const onEntries = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
       for (const entry of entries) {
         const element = entry.target as HTMLElement;
-        const at = Number(element.dataset.revealAt) || 0;
+        const at = thresholdOf.get(element) ?? 0;
         if (!entry.isIntersecting || entry.intersectionRatio < at - 0.01) continue;
         observer.unobserve(element);
         seen.add(indexOf.get(element) ?? -1);
@@ -109,13 +123,20 @@ export function RevealObserver() {
         const state = element.dataset.revealed;
         if (state === "done") return;
         if (state === "animate") return finish(element);
-        if (seen.has(index) || element.getBoundingClientRect().top < fold) {
+        const rect = element.getBoundingClientRect();
+        const at = thresholdFor(element, rect, fold);
+        // Default elements count as seen once their top edge is on screen. Threshold elements count as
+        // seen only once their configured share is visible (or they lie entirely above the viewport):
+        // a photo showing just a sliver at the bottom still gets its entrance.
+        const visible = rect.height > 0 ? (Math.min(rect.bottom, fold) - Math.max(rect.top, 0)) / rect.height : 0;
+        const alreadyShown = at > 0 ? rect.bottom <= 0 || visible >= at : rect.top < fold;
+        if (seen.has(index) || alreadyShown) {
           seen.add(index);
           return finish(element);
         }
         element.dataset.revealed = "wait";
-        const at = Number(element.dataset.revealAt);
-        observerFor(Number.isFinite(at) && at > 0 && at <= 1 ? at : 0).observe(element);
+        thresholdOf.set(element, at);
+        observerFor(at).observe(element);
       });
     };
     setup();
