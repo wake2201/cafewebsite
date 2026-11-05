@@ -124,11 +124,6 @@ label[for] {
   scroll-margin-top: var(--space-4);
 }
 
-/* The Wochenkarte heading lands one wheel step (~90px) lower, so the section's top reads as an arrival. */
-#wochenkarte {
-  scroll-margin-top: calc(var(--space-4) + 90px);
-}
-
 button:disabled {
   cursor: not-allowed;
 }
