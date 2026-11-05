@@ -61,7 +61,7 @@ export default async function UeberUnsPage() {
               photo windows on first encounter, the detail slightly after the main photo. */}
           <div className={styles.tourGrid}>
             <figure className={styles.tourMain}>
-              <div className={styles.tourFrame} data-reveal="photo">
+              <div className={styles.tourFrame} data-reveal="photo" data-reveal-at="0.3">
                 <Image
                   src={theke}
                   alt="Lange Theke mit Kuchen, Kaffeemaschine und Kuchenvitrine, dahinter Tische an der Fensterfront"
@@ -73,7 +73,7 @@ export default async function UeberUnsPage() {
               <figcaption>Entlang der Theke bis zur Fensterfront</figcaption>
             </figure>
             <figure className={styles.tourSide}>
-              <div className={styles.detailFrame} data-reveal="photo">
+              <div className={styles.detailFrame} data-reveal="photo" data-reveal-at="0.3">
                 <Image
                   src={wandlogo}
                   alt="Hinterer Gastraum mit gedeckten Tischen, Wandlampen und dem gemalten Café-Logo an der Wand"

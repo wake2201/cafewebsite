@@ -128,24 +128,43 @@
 }
 
 /*
- * Milestone 5: while the frame's photo window opens (data-revealed="animate", set by RevealObserver on
- * first encounter), the picture itself settles from 103 % to its natural size inside the clipped frame,
- * so the main Rundgang photo moves like the other revealed photographs. Same trigger, once per route;
- * nothing runs in the "done" state (route return, Back/Forward), without JavaScript or with reduced
- * motion. Transform only: crop, frame size and caption are unchanged.
+ * Milestone 5: the main Rundgang photo grows into place on first encounter. The frame (not the image
+ * inside it, which would expose the frame's background) starts at 95 % and grows to its natural size.
+ * Two animations of equal length: tour-open fades it in and opens the photo window within the first 40 %,
+ * tour-grow (gentle start, long soft finish) carries most of the growth after that, so the growing is
+ * seen on an already visible photo. It starts once about 30 % of the photo is on screen (data-reveal-at in the markup), not when its
+ * top edge first appears. Transform only, so layout, crop and caption never move. Same lifecycle as every
+ * reveal (RevealObserver: wait, animate, done), once per route; nothing runs in the "done" state, without
+ * JavaScript or with reduced motion. Specificity (0,3,0) overrides the generic photo window.
  */
 @media (prefers-reduced-motion: no-preference) {
-  .tourFrame[data-revealed="animate"] .tourImage {
-    /* Same length as the frame's window (900 ms), so it ends exactly when the frame turns "done". A
-       gentler curve than --ease-out (which finishes almost everything in the first 250 ms, while the
-       frame is still fading in) keeps the settle perceptible through the window's opening. */
-    animation: tour-image-settle 900ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  .tourFrame[data-reveal][data-revealed="wait"] {
+    transform: scale(0.95);
+  }
+
+  .tourFrame[data-reveal][data-revealed="animate"] {
+    animation:
+      tour-open 1100ms linear both,
+      tour-grow 1100ms cubic-bezier(0.35, 0.15, 0.25, 1) both;
   }
 }
 
-@keyframes tour-image-settle {
+@keyframes tour-open {
+  0% {
+    opacity: 0.3;
+    clip-path: inset(4% 3% round var(--radius));
+    animation-timing-function: var(--ease-out);
+  }
+  40%,
+  100% {
+    opacity: 1;
+    clip-path: inset(0 round var(--radius));
+  }
+}
+
+@keyframes tour-grow {
   from {
-    transform: scale(1.03);
+    transform: scale(0.95);
   }
 }
 

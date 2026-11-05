@@ -17,6 +17,10 @@ import { useEffect, useRef } from "react";
  *    state CSS hides. Elements on screen, already seen on an earlier visit of the route, or not laid
  *    out yet are never hidden, so a missed case means "no animation", never "missing content".
  *
+ * Optional `data-reveal-at="<ratio>"` starts an element once that share of it is visible (the tall Über uns
+ * Rundgang photos, so their entrance plays where it can be seen) instead of when its top edge reaches the
+ * lower 8 % of the viewport.
+ *
  * Next.js re-renders some returning routes and restores others from a hidden copy, so both the DOM state
  * (`data-revealed`) and a per-route index set are used. No JavaScript, reduced motion or print: no
  * hidden state at all.
@@ -62,25 +66,35 @@ export function RevealObserver() {
       element.dataset.revealed = "done";
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const element = entry.target as HTMLElement;
-          observer.unobserve(element);
-          seen.add(indexOf.get(element) ?? -1);
-          element.dataset.revealed = "animate";
-          // Settle to "done" so a restored copy of this page never restarts the animation.
-          const onEnd = (event: AnimationEvent) => {
-            if (event.target !== element) return;
-            element.removeEventListener("animationend", onEnd);
-            finish(element);
-          };
-          element.addEventListener("animationend", onEnd);
-        }
-      },
-      { rootMargin: "0px 0px -8% 0px" },
-    );
+    const onEntries = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+      for (const entry of entries) {
+        const element = entry.target as HTMLElement;
+        const at = Number(element.dataset.revealAt) || 0;
+        if (!entry.isIntersecting || entry.intersectionRatio < at - 0.01) continue;
+        observer.unobserve(element);
+        seen.add(indexOf.get(element) ?? -1);
+        element.dataset.revealed = "animate";
+        // Settle to "done" so a restored copy of this page never restarts the animation.
+        const onEnd = (event: AnimationEvent) => {
+          if (event.target !== element) return;
+          element.removeEventListener("animationend", onEnd);
+          finish(element);
+        };
+        element.addEventListener("animationend", onEnd);
+      }
+    };
+
+    // One observer per trigger: by default an element starts when its top reaches the lower 8 % of the
+    // viewport; data-reveal-at elements start once that share of them is visible.
+    const observers = new Map<number, IntersectionObserver>();
+    const observerFor = (at: number) => {
+      let observer = observers.get(at);
+      if (!observer) {
+        observer = new IntersectionObserver(onEntries, at > 0 ? { threshold: at } : { rootMargin: "0px 0px -8% 0px" });
+        observers.set(at, observer);
+      }
+      return observer;
+    };
 
     const setup = () => {
       elements = [...document.querySelectorAll<HTMLElement>("[data-reveal]")].filter(isRendered);
@@ -100,14 +114,15 @@ export function RevealObserver() {
           return finish(element);
         }
         element.dataset.revealed = "wait";
-        observer.observe(element);
+        const at = Number(element.dataset.revealAt);
+        observerFor(Number.isFinite(at) && at > 0 && at <= 1 ? at : 0).observe(element);
       });
     };
     setup();
 
     return () => {
       cancelAnimationFrame(frame);
-      observer.disconnect();
+      for (const observer of observers.values()) observer.disconnect();
       // Leaving the route: nothing stays hidden or mid-animation in a copy Next.js may keep.
       for (const element of elements) {
         if (element.dataset.revealed === "wait") delete element.dataset.revealed;
