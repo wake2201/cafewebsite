@@ -17,9 +17,10 @@ import { useEffect, useRef } from "react";
  *    state CSS hides. Elements on screen, already seen on an earlier visit of the route, or not laid
  *    out yet are never hidden, so a missed case means "no animation", never "missing content".
  *
- * Optional `data-reveal-at="<ratio>"` starts an element once that share of it is visible (the tall Über uns
- * Rundgang photos, so their entrance plays where it can be seen) instead of when its top edge reaches the
- * lower 8 % of the viewport.
+ * Optional `data-reveal-at="<ratio>"` starts a waiting element once that share of it is visible (the tall
+ * Über uns Rundgang photos, so their entrance plays where it can be seen) instead of when its top edge
+ * reaches the lower 8 % of the viewport. It never decides whether an element is hidden: only elements
+ * entirely below the fold at setup wait at all.
  *
  * Next.js re-renders some returning routes and restores others from a hidden copy, so both the DOM state
  * (`data-revealed`) and a per-route index set are used. No JavaScript, reduced motion or print: no
@@ -124,17 +125,15 @@ export function RevealObserver() {
         if (state === "done") return;
         if (state === "animate") return finish(element);
         const rect = element.getBoundingClientRect();
-        const at = thresholdFor(element, rect, fold);
-        // Default elements count as seen once their top edge is on screen. Threshold elements count as
-        // seen only once their configured share is visible (or they lie entirely above the viewport):
-        // a photo showing just a sliver at the bottom still gets its entrance.
-        const visible = rect.height > 0 ? (Math.min(rect.bottom, fold) - Math.max(rect.top, 0)) / rect.height : 0;
-        const alreadyShown = at > 0 ? rect.bottom <= 0 || visible >= at : rect.top < fold;
-        if (seen.has(index) || alreadyShown) {
+        // Visual stability first: anything the visitor can already see, even a sliver at the bottom of
+        // the first screen, stays as it is (no entrance), and so does anything above the viewport. Only
+        // elements entirely below the fold are hidden and wait for their entrance.
+        if (seen.has(index) || rect.top < fold) {
           seen.add(index);
           return finish(element);
         }
         element.dataset.revealed = "wait";
+        const at = thresholdFor(element, rect, fold);
         thresholdOf.set(element, at);
         observerFor(at).observe(element);
       });

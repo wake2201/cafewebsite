@@ -242,11 +242,11 @@ No Sanity token is needed (published content is read anonymously). Checked: no s
     reveals `done` on re-rendered pages; leaving a route clears `wait` and settles `animate`, so restored copies
     neither hide content nor replay. Hidden route copies are skipped (`getClientRects()`), with a few frames' retry.
   - *Visibility thresholds (Milestone 5):* `data-reveal-at="<ratio>"` (the two Über uns Rundgang photos, 0.3) starts
-    an element once that share is visible, via its own IntersectionObserver. At setup such an element counts as
-    already seen only when its share is visible (or it lies above the viewport); a sliver at the bottom of the first
-    screen waits instead, receding over 220 ms (`wait` has a short transition, so it never blinks out). The share is
-    capped to 90 % of the viewport height for tall elements on short screens. All other elements keep the top-edge
-    rule. Photo windows start from opacity 0, the `wait` value, so they never pop to a partial opacity on trigger.
+    a waiting element once that share is visible, via its own IntersectionObserver; the share is capped to 90 % of the
+    viewport height for tall elements on short screens. Setup is the same for every element: anything with any part
+    on screen (or above it) when the script starts stays visible with no entrance; only elements entirely below the
+    fold wait. (An interim version let a partly visible threshold photo wait and fade out during hydration; removed,
+    visual stability beats a forced entrance.) Photo windows start from opacity 0, the `wait` value, so they never pop to a partial opacity on trigger.
   Native `animation-timeline: view()` was not used
   for these entrances: it scrubs with scroll position (DESIGN.md forbids scroll-tied opacity), cannot give a fixed
   400 to 650 ms entrance, and is not available in every target browser.
