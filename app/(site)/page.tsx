@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { OpeningHours } from "@/components/OpeningHours";
+import { SectionLink } from "@/components/SectionLink";
 import { TodayPanel } from "@/components/TodayPanel";
 import { WeeklyMenu } from "@/components/WeeklyMenu";
 import { cafe } from "@/lib/cafe";
@@ -28,9 +29,9 @@ export default async function HomePage() {
               Mittag und Kuchen aus eigener Herstellung, zum Bleiben oder zum Mitnehmen.
             </p>
             <p className={styles.actions}>
-              <Link href="#wochenkarte" className="button">
+              <SectionLink id="wochenkarte" className="button">
                 Wochenkarte ansehen
-              </Link>
+              </SectionLink>
             </p>
           </div>
           <div className={styles.heroToday}>
